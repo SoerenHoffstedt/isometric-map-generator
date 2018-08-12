@@ -1,0 +1,127 @@
+
+IDEA: Maybe have possibility to create your own supply network, becoming more like a traditional tycoon game? At start get ressources for restaurants from a supplier. But doing it on your own would be cheaper?
+
+
+	oh man, big picture design goal:
+
+		you can make more money per pizza in richer cities, because the price can get higher faster than the ingredients will.
+		but they are more picky -> the delivery boys have to be friendly, the pizza has to come fast.
+	
+	store can have a cap for how many orders it takes -> but a customer wanting to order is sad -> negative 2
+	if orders are standing for too long the customers does not want it anymore and gets angry -> negative 10
+	if an order took to long to deliver, it gets cold -> negative 5
+
+	handling purchasing prices and pizza prices might be a  little too much micromanagement. 
+	have sliders for purchasing prices and selling prices that are more abstract?
+
+	connect a store to different city. so for small towns you can have one store for three towns or something like that
+
+
+pizza pizza me so hungry
+
+
+isometric transport tycoon like map with
+	cities
+	rivers
+	lakes
+	forests
+	hills
+
+	but most importantly:
+		different cities
+		multiple sizes
+		a city has districts with different attributes
+			wealth (how many people order pizza)
+			amount of people (how many people order pizza)
+			road travel (how fast can you deliver them)
+		cities grow ?! on what factors? how can they be 
+
+Management Gameplay
+	placing and buying new pizza shops
+	setting parameters for how far the delivery drives maximum
+	how many delivery boys and girls do you hire
+	marketing campaigns
+	set the pricing
+		different pricing for different shops (even though they are the same brand) 
+		-> negative pr but maybe people are buying more and you earn more in richer districts
+	Company policies -> better treatement, better delivery people
+
+	faster delivery -> bigger tip to driver
+	if long deliveries driver gets less tips so he is less happy, would need more wage
+
+	Delivery boy happines:
+		wage
+		company policies (long shifts suck, the bonuses)
+
+
+	Delivery Vehicles
+		Scooter
+			transports 5 pizzas
+			not as slow in bad traffic
+		Car
+			transports 10/15 pizzas (maybe two different cars)
+			are slow in bad traffic
+
+		=> means for bad traffic situations scooters are faster but you need more people to deliver the same amount of pizzas
+
+
+
+	Opponents
+		important but do this later
+		to give a challenge and more tactical gameplay. decide at the right time to advance your market in another city, another district
+
+
+The Code Side of Things
+	
+	Tile 
+		has a landscape type (land, water) and a height for each corner
+		objects on top:
+			Forest
+			Houses
+			Roads
+
+	City
+		amount of tiles
+		economic actor
+		each city has pizza shops available/built 
+			-> not only the players
+			and the people select one from that
+
+		No real need to model people.
+			the city has a population and (later maybe different economic districts, but right now a city might a singular rater small actor)
+
+
+Map Generator Ideas:
+
+	Cellular automata with preset lakes and bezier curves between lakes -> makes rivers thicker.
+
+
+
+Architecture
+
+	GameScene
+		as scene managing all subsystems and handling player input and UI (its a UI and system driven game, so direct user input on map is limited)
+
+	Simulation
+		have this in seperated class that keeps all the company references and stuff
+		and handles the UpdateTicks? yeah lets do this
+
+	Tileset
+		stores the sprite data, accessible via enums and indixes for the Renderer
+
+	Map 
+		as Tile Container with map specific operations like pathfinding and placing/changing buildings
+
+	Renderer
+		move rendering away from map, have it be data.
+		gets Map, Agents and user input stuff to draw the game.
+
+
+Simulation Tick
+
+	simulation tick should be maybe once a second?
+	would be good to make it threaded then, else one frame may always hick up
+
+UI
+
+	make store Screen not a window, but pop up on one side of the screen. more onscreen UI than a window, that takes focus away from the map

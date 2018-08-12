@@ -1,0 +1,89 @@
+<!-- LayoutOverflow: Scrollbar, Overflow, Truncate, ThrowException -->
+<!-- LayoutFill: Nothing, StretchContent, StretchMargin -->
+<!-- LayoutSize/ChildLayoutOverwrite: MatchParent, WrapContent, FixedSize. Or leave out for not overwriting child layout. -->
+<!-- AnchorX, AnchorY -->
+
+
+<layouts>
+
+	<standard>		
+
+		<panel>
+			<padding 					x="10" y="10" />
+			<margin 					val="5"/>
+			<anchor 					x="Left" y="Top" />
+			<layoutSize 				x="FixedSize" y="FixedSize" />
+			<layoutOverflow 			val="ThrowException"/> 		
+			<layoutFill 				val="Nothing"/>
+			<hasChildLayoutOverwrite	val="true" />
+			<childLayoutOverwrite		val="MatchParent" /> 	
+			<childAllign 				x="Middle" y="Top"/> 	
+		</panel>
+
+		<button>
+			<padding 					x="8" y="8" />
+			<layoutSize 				x="WrapContent" y="WrapContent" />
+		</button>
+
+		<keyValueText>
+			<padding 					x="0" y="0" />
+			<layoutSize 				x="WrapContent" y="WrapContent" />
+			<sizeSplit 					key="0.75" value="0.25" />
+		</keyValueText>
+
+		<text>
+			<padding 					x="0" y="0" />
+			<layoutSize 				x="MatchParent" y="WrapContent" />
+			<allignment					x="Left"		y="Middle" />
+		</text>
+
+	</standard>
+
+
+	<layout id="timeBar">
+		<panel>			
+			<anchor 					x="Middle" y="Top" />		
+			<margin 					val="10" />
+			<padding 					x="0" y="0" />			
+			<layoutSize 				x="WrapContent" y="WrapContent" />
+			<childLayoutOverwrite 		val="WrapContent" />
+		</panel>
+		<text>
+			<layoutSize 				x="WrapContent" y="WrapContent" />
+			<allignment					x="Middle"		y="Middle" />
+		</text>
+	</layout>
+
+	<layout id="timeBarPanel">
+		<panel>
+			<hasChildLayoutOverwrite	val="false" />
+			<padding 					x="10" y="10" />
+		</panel>
+	</layout>	
+
+	<layout id="storeScreen">
+		<panel>
+			<childAllign 				x="Left" y="Top" />
+		</panel>
+		<button>
+			<padding 					x="6" y="6" />
+			<layoutSize 				x="WrapContent" y="WrapContent" />
+		</button>
+	</layout>
+
+	<layout id="mapMain">
+		<panel>			
+			<layoutSize 				x="FixedSize" y="WrapContent" />							
+			<childLayoutOverwrite		val="MatchParent" /> 	
+			<childAllign 				x="Left" y="Top"/> 	
+		</panel>
+	</layout>
+
+	<layout id="bottomButtons">
+		<panel>
+			<childLayoutOverwrite		val="WrapContent" /> 	
+			<childAllign				x="Right" y="Middle" />
+		</panel>
+	</layout>
+
+</layouts>

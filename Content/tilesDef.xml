@@ -1,0 +1,108 @@
+<tiles name="standard" atlas="tiles">
+	<!--
+	North/Up 	1
+	East/Right 	2
+	South/Down	4
+	West/Left	8
+	-->
+	<normal>
+		<t slope="0" 	x="0" 	y="0" 	w="64" h="48"/>
+		
+		<t slope="6" 	x="0" 	y="56" 	w="64" h="48"/>
+		<t slope="12" 	x="64" 	y="56" 	w="64" h="48"/>
+		<t slope="9" 	x="128"	y="56" 	w="64" h="48"/>
+		<t slope="3" 	x="192"	y="56" 	w="64" h="48"/>
+
+		<t slope="14"	x="0"	y="128"	w="64" h="48"/>
+		<t slope="13"	x="64"	y="128"	w="64" h="48"/>
+		<t slope="7"	x="128"	y="128"	w="64" h="48"/>
+		<t slope="11"	x="192"	y="128"	w="64" h="48"/>
+
+		<t slope="4"	x="0"	y="224"	w="64" h="48"/>
+		<t slope="8"	x="64"	y="224"	w="64" h="48"/>
+		<t slope="2"	x="128"	y="224"	w="64" h="48"/>
+		<t slope="1"	x="192"	y="224"	w="64" h="48"/>
+	</normal>
+
+	<water>
+		<t slope="0" 	x="256" 	y="0" 	w="64" h="48"/>
+	
+		<t slope="6" 	x="256" 	y="56" 	w="64" h="64"/>
+		<t slope="12" 	x="320" 	y="56" 	w="64" h="64"/>
+		<t slope="9" 	x="384"		y="56" 	w="64" h="64"/>
+		<t slope="3" 	x="448"		y="56" 	w="64" h="64"/>
+
+		<t slope="14"	x="256"	y="128"	w="64" h="64"/>
+		<t slope="13"	x="320"	y="128"	w="64" h="64"/>
+		<t slope="7"	x="384"	y="128"	w="64" h="64"/>
+		<t slope="11"	x="448"	y="128"	w="64" h="64"/>
+
+		<t slope="4"	x="256"	y="224"	w="64" h="64"/>
+		<t slope="8"	x="320"	y="224"	w="64" h="64"/>
+		<t slope="2"	x="384"	y="224"	w="64" h="64"/>
+		<t slope="1"	x="448"	y="224"	w="64" h="64"/>		
+	</water>
+
+	<roads>
+		<t slope="0" roadDir="0"		x="0"	y="456"	w="64" h="48"/>
+		<t slope="0" roadDir="1"		x="0"	y="504"	w="64" h="48"/>
+		<t slope="0" roadDir="2"		x="64"	y="504"	w="64" h="48"/>
+		<t slope="0" roadDir="3"		x="128"	y="504"	w="64" h="48"/>
+		<t slope="0" roadDir="4"		x="192"	y="504"	w="64" h="48"/>
+
+		<t slope="0" roadDir="5"		x="0"	y="552"	w="64" h="48"/>
+		<t slope="0" roadDir="6"		x="64"	y="552"	w="64" h="48"/>
+		<t slope="0" roadDir="7"		x="128"	y="552"	w="64" h="48"/>
+		<t slope="0" roadDir="8"		x="192"	y="552"	w="64" h="48"/>
+
+		<t slope="0" roadDir="9"		x="0"	y="600"	w="64" h="48"/>
+		<t slope="0" roadDir="10"		x="64"	y="600"	w="64" h="48"/>
+		<t slope="0" roadDir="11"		x="128"	y="600"	w="64" h="48"/>
+		<t slope="0" roadDir="12"		x="192"	y="600"	w="64" h="48"/>
+
+		<t slope="0" roadDir="13"		x="0"	y="648"	w="64" h="48"/>
+		<t slope="0" roadDir="14"		x="64"	y="648"	w="64" h="48"/>
+		<t slope="0" roadDir="15"		x="128"	y="648"	w="64" h="48"/>
+
+		<t slope="6" roadDir="10"		x="0"	y="696"	w="64" h="64"/>
+		<t slope="12" roadDir="5"		x="64"	y="696"	w="64" h="64"/>
+		<t slope="9" roadDir="10"		x="128"	y="696"	w="64" h="64"/>
+		<t slope="3" roadDir="5"		x="192"	y="696"	w="64" h="64"/>
+
+	</roads>
+
+	<houses>
+		<level level="1">
+			<t type="Living" 		x="608"	y="0"	w="64" h="80"/>
+			<t type="Living"  		x="544"	y="176"	w="64" h="48"/> 
+			<t type="Commerce"  	x="736"	y="0"	w="64" h="48"/>
+		</level>
+		
+		<level level="2">
+			<t type="Living" 		x="608"	y="96"	w="64" h="71"/>
+			<t type="Living" 		x="544"	y="0"	w="64" h="48"/> 
+			<t type="Commerce" 		x="672"	y="66"	w="64" h="54"/>
+		</level>
+
+		<level level="3">
+			<t type="Living" 		x="544"	y="88"	w="64" h="64"/>
+		</level>
+		<!-- <t type="Commerce" level="1"  	x="672"	y="0"	w="64" h="64"/> -->
+	</houses>
+	
+	<pizzaBuildings>
+		<t type="Pizza" level="3" 		x="736"	y="66"	w="64" h="54"/>
+	</pizzaBuildings>
+
+	<forest>
+		<t 								x="832"	y="0"	w="64" h="64"/>
+	</forest>
+
+	<highlightSprites>
+		<s name="downArrow" 	x="0" 	y="768" w="36" h="38"/>
+		<s name="dollar" 		x="0" 	y="816" w="24" h="40"/>
+		<s name="sadFace" 		x="64" 	y="768" w="32" h="32"/>
+		<s name="happpyFace"	x="128" y="768" w="32" h="32"/>
+	</highlightSprites>
+
+</tiles>

@@ -1,0 +1,13 @@
+<sounds folder="Sounds">
+
+	<!--
+	<s id="click" file="interface/click"/>		
+	
+	<s id="explosion">
+		<file file="impacts/explode_a"/>
+		<file file="impacts/explode_b"/>
+		<file file="impacts/explode_c"/>
+	</s>
+	-->
+
+</sounds>

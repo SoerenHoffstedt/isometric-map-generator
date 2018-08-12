@@ -1,0 +1,120 @@
+<styles>
+
+	<standard>		
+		<textColor 					id="text" />
+		<textFont 					id="textSmall" />		
+
+		<panelHasSprite				val="false" />		
+		<panelSprite 				id="panel" />
+		
+		<buttonSprite 				id="button" />
+		<buttonFont					id="textSmall" />
+		<buttonTextColor			id="text" />
+		<buttonColors>
+			<normal 	id="buttonNormal"/>
+			<mouseOver 	id="buttonMouseOver"/>
+			<mouseDown 	id="buttonMouseDown"/>
+			<inactive  	id="buttonInactive"/>
+		</buttonColors>
+
+		<checkboxSprite				id="checkbox" />
+		<checkboxSelectionSprite	id="checkboxSelection" />
+
+		<radioButtonSprite 			id="radioButton"/>
+		<radioButtonSelectionSprite id="radioButtonSelection" />
+		<radioButtonFont 			id="textNormal" />
+		<radioButtonTextColor		id="text"/>
+
+		<scrollbarSprite 			id="scrollbar" />
+		<scrollbarHandleSprite 		id="scrollbarHandle" />
+
+		<keyTextColor 				id="text"/>
+		<valueTextColor 			id="text"/>
+		<keyTextFont 				id="textSmall"/>
+		<valueTextFont	 			id="textNormal"/>
+
+		<titlebarSprite				id="titlebar"/>
+		<titlebarCloseSprite		id="close"/>
+		<titlebarTextColor			id="text"/>
+		<titlebarFont				id="textNormal"/>
+
+		<sliderHandle				id="sliderHandle" />
+		<sliderBar					id="sliderBar" />
+
+	</standard>
+
+	<style id="mainButtonPanel">
+		<panelHasSprite				val="true"/>		
+	</style>
+
+	<style id="storeScreen">
+		
+	</style>
+
+	<style id="timeBar">
+		<textFont 					id="textSmall" />
+	</style>
+
+	<style id="speedControls">
+		
+	</style>
+
+	<style id="moneyPanel">
+		<panelHasSprite 			val="true"/>
+	</style>
+
+	<style id="panelSpriteOn">
+		<panelHasSprite 			val="true"/>	
+	</style>
+
+	<style id="panelSpriteOff">
+		<panelHasSprite 			val="false"/>
+	</style>
+
+	<style id="mapMain">
+		<textFont 					id="textSmall"/>
+	</style>
+
+	<sprites>
+		<sprite id="panel" 					texture="ui_atlas" x="64" y="0" w="16" h="16" up="6" down="6" left="6" right="6"/>
+		<sprite id="button"			 		texture="ui_atlas" x="32" y="0" w="16" h="16" up="6" down="6" left="6" right="6"/>
+		<sprite id="checkbox" 				texture="ui_atlas" x="0" y="64" w="16" h="16" up="7" down="7" left="7" right="7"/>
+		<sprite id="checkboxSelection" 		texture="ui_atlas" x="64" y="64" w="32" h="32" />
+		<sprite id="radioButton" 			texture="ui_atlas" x="0"  y="80" w="32" h="32" />
+		<sprite id="radioButtonSelection" 	texture="ui_atlas" x="32" y="80" w="32" h="32" />
+		<sprite id="scrollbar" 				texture="ui_atlas" x="0" y="48" w="16" h="16" up="4" down="4" left="4" right="4"/>
+		<sprite id="scrollbarHandle" 		texture="ui_atlas" x="16" y="48" w="16" h="16" up="4" down="4" left="4" right="4"/>
+		<sprite id="titlebar" 				texture="ui_atlas" x="0" y="32" w="32" h="16" up="6" down="6" left="6" right="6"/>
+		<sprite id="close" 					texture="ui_atlas" x="0" y="0" w="32" h="32" />
+			
+		<sprite id="speedPaused" 			texture="ui_atlas" x="160" y="0"  w="14" h="16"/>
+		<sprite id="speedPausedSel" 		texture="ui_atlas" x="160" y="16" w="14" h="16"/>
+		<sprite id="speedNormal" 			texture="ui_atlas" x="128" y="0"  w="16" h="16"/>
+        <sprite id="speedNormalSel" 		texture="ui_atlas" x="128" y="16" w="16" h="16"/>
+        <sprite id="speedFast" 				texture="ui_atlas" x="128" y="0"  w="32" h="16"/>
+        <sprite id="speedFastSel" 			texture="ui_atlas" x="128" y="16" w="32" h="16"/>
+		<sprite id="speedFaster" 			texture="ui_atlas" x="128" y="0"  w="38" h="16"/>
+		<sprite id="speedFasterSel" 		texture="ui_atlas" x="128" y="16" w="38" h="16"/>
+
+		<sprite id="sliderBar"				texture="ui_atlas" x="0" y="128" w="22" h="16" up="6" down="6" left="11" right="11"/>
+		<sprite id="sliderHandle"			texture="ui_atlas" x="32" y="128" w="16" h="16" up="5" down="5" left="5" right="5"/>
+
+	</sprites>
+
+	<colors>
+		<color id="text" 					r="227" g="221" b="209" />
+		<color id="buttonNormal" 			r="255" g="255" b="255" />
+		<color id="buttonMouseOver" 		r="220" g="220" b="220" />
+		<color id="buttonMouseDown" 		r="170" g="170" b="170" />
+		<color id="buttonInactive" 			r="031" g="031" b="031" />
+		<color id="black" 					r="015" g="015" b="015" />
+		<color id="purple"					r="061" g="059" b="076" />
+	</colors>
+
+	<fonts>		
+		<font id="textSmall" 				name="Fonts/Xolonium_12"/>
+		<font id="textNormal" 				name="Fonts/Xolonium_15"/>
+		<font id="textLarge" 				name="Fonts/Xolonium_18"/>		
+	</fonts>
+
+</styles>

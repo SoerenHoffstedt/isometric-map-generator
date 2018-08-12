@@ -1,0 +1,23 @@
+<language lang="en">
+	<!--> 	
+	<string id=""></string>
+ 	</-->
+
+	<string id="deliveredPizzas">Delivered Pizzas</string>
+	<string id="outstandingOrders">Outstanding Orders</string>
+	<string id="avgDeliveryTime">Average Delivery Time</string>
+	<string id="PlacePizzaStore">Place Store</string>
+
+	<string id="week">Week</string>
+	<string id="day">Day</string>
+
+	<string id="forestSize">Forest Size</string>
+	<string id="hasWater">Water</string>
+	<string id="hasCities">Cities</string>
+	<string id="mapWidth">Map Width</string>
+	<string id="mapHeight">Map Height</string>
+	<string id="cityNum">Amount of Cities</string>
+	
+
+</language>
+
