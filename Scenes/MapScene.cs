@@ -1,8 +1,6 @@
 ﻿using Barely.SceneManagement;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -21,10 +19,9 @@ using BarelyUI.Layouts;
 using System.Diagnostics;
 
 namespace Industry.Scenes
-{
+{   
     public class MapScene : BarelyScene
     {
-
         Map map;
         Canvas uiCanvas;
         IsoRenderer renderer;
@@ -33,11 +30,16 @@ namespace Industry.Scenes
         GeneratorParameter mapParameter;        
         List<City> cities;
 
+        Button mapGenButton;
+        Task<Map> mapGenTask;
+        double generatingTimer = 0.0;
+        int generatingDots = 1;
+
         public MapScene(ContentManager Content, GraphicsDevice GraphicsDevice, Game game)
             : base(Content, GraphicsDevice, game)
         {
             uiCanvas = new Canvas(Content, Config.Resolution, GraphicsDevice);
-            cityFont = Content.Load<SpriteFont>("Fonts/Xolonium_18");
+            cityFont = Content.Load<SpriteFont>("Fonts/Xolonium_18");            
         }
 
         public override void Initialize()
@@ -85,6 +87,7 @@ namespace Industry.Scenes
 
         public override void Update(double deltaTime)
         {
+            UpdateMapGeneration(deltaTime);
             HandleInput(deltaTime);
             CameraInput(deltaTime);
             map.Update((float)deltaTime);
@@ -182,9 +185,19 @@ namespace Industry.Scenes
         }
 
         private void GenerateNewMap()
-        {            
-            map.GenerateMap(mapParameter);
+        {
+            mapGenButton.ChangeText("Generating   ");
+            mapGenTask = new Task<Map>(() => {
+                Map newMap = new Map(mapParameter, camera, Content, GraphicsDevice, Config.Resolution);
+                return newMap;
+            });
+            mapGenTask.Start();
+        }
 
+        private void ApplyNewGeneratedMap()
+        {
+            Debug.Assert(mapGenTask.IsCompleted);
+            map = mapGenTask.Result;
             if (cities == null)
                 cities = new List<City>(map.cityRooms.Count);
             else
@@ -200,7 +213,39 @@ namespace Industry.Scenes
             else
                 renderer.ResetMap(map);
         }
-        
+
+        private void UpdateMapGeneration(double deltaTime)
+        {
+            if (mapGenTask != null)
+            {
+                if (mapGenTask.IsCompleted)
+                {
+                    ApplyNewGeneratedMap();
+                    mapGenButton.ChangeText("Generate");
+                    generatingTimer = 0.0;
+                    generatingDots = 0;
+                    mapGenTask = null;
+                }
+                else
+                {
+                    generatingTimer += deltaTime;
+                    if (generatingTimer > 0.33)
+                    {
+                        generatingDots = (generatingDots + 1) % 4;
+                        generatingTimer -= 0.33;
+                        if (generatingDots == 0)
+                            mapGenButton.ChangeText("Generating   ");
+                        else if (generatingDots == 1)
+                            mapGenButton.ChangeText("Generating.  ");
+                        else if (generatingDots == 2)
+                            mapGenButton.ChangeText("Generating.. ");
+                        else if (generatingDots == 3)
+                            mapGenButton.ChangeText("Generating...");
+                    }
+                }
+            }
+        }
+               
         #region UI
 
         string UpdateMouseOverTileText()
@@ -265,11 +310,11 @@ namespace Industry.Scenes
 
             Text mouseOverText = new Text("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa").SetTextUpdateFunction(UpdateMouseOverTileText);            
 
-            Button genButton = new Button("Generate");
-            genButton.OnMouseClick = GenerateNewMap;
+            mapGenButton = new Button("Generate");
+            mapGenButton.OnMouseClick = GenerateNewMap;
 
             main.AddChild(mouseOverText, new Space(6), xDesc, sizeX, new Space(6), yDesc, sizeY, new Space(6), checkWater, 
-                          cityNumText, cityNumSlider, new Space(6), forestText, forestSlider, new Space(6), genButton);
+                          cityNumText, cityNumSlider, new Space(6), forestText, forestSlider, new Space(6), mapGenButton);
 
             uiCanvas.AddChild(main);
 
