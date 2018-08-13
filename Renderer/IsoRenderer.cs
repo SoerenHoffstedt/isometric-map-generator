@@ -51,7 +51,8 @@ namespace Industry.Renderer
                          PlacementPreviewData previewData,
                          List<HighlightTileRenderData> highlightData,
                          Tile mouseOverTile,
-                         Canvas uiCanvas)
+                         Canvas uiCanvas,
+                         bool hideUI)
         {
 
             int spriteCount = 0;
@@ -311,10 +312,13 @@ namespace Industry.Renderer
             spriteBatch.End();
 
 
-            //Debug.WriteLine($"Sprite Drawn: {spriteCount}");            
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.AnisotropicWrap, rasterizerState: uiRasterizerState, transformMatrix: camera.uiTransform);
-            uiCanvas.Render(spriteBatch);        
-            spriteBatch.End();
+            //Debug.WriteLine($"Sprite Drawn: {spriteCount}");       
+            if (!hideUI)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.AnisotropicWrap, rasterizerState: uiRasterizerState, transformMatrix: camera.uiTransform);
+                uiCanvas.Render(spriteBatch);        
+                spriteBatch.End();
+            }
             
         }
 

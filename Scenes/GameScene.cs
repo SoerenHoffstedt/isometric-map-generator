@@ -462,7 +462,7 @@ namespace Industry.Scenes
             }
 
 
-            renderer.Draw(spriteBatch, camera, map, allAgents, simulator.cities, prevData, highlights, mouseOverTile, uiCanvas);            
+            renderer.Draw(spriteBatch, camera, map, allAgents, simulator.cities, prevData, highlights, mouseOverTile, uiCanvas, false);            
         }
     }
 }

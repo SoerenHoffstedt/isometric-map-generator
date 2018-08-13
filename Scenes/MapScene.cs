@@ -30,8 +30,8 @@ namespace Industry.Scenes
         SpriteFont cityFont;
         GeneratorParameter mapParameter;        
         List<City> cities;
-
         Task<Map> mapGenTask;        
+        bool hideUI = false;
 
         public MapScene(ContentManager Content, GraphicsDevice GraphicsDevice, Game game)
             : base(Content, GraphicsDevice, game)
@@ -80,7 +80,7 @@ namespace Industry.Scenes
             PlacementPreviewData prevData = new PlacementPreviewData(TileType.Nothing, 0);
             List<HighlightTileRenderData> highlightData = new List<HighlightTileRenderData>();
 
-            renderer.Draw(spriteBatch, camera, map, agents, cities, prevData, highlightData, null, uiCanvas);
+            renderer.Draw(spriteBatch, camera, map, agents, cities, prevData, highlightData, null, uiCanvas, hideUI);
         }        
 
         public override void Update(double deltaTime)
@@ -96,7 +96,7 @@ namespace Industry.Scenes
 
         private void HandleInput(double deltaTime)
         {
-            bool handled = uiCanvas.HandleInput();
+            bool handled = hideUI ? false : uiCanvas.HandleInput();
             cameraTakesInput = true;
             if (handled)
             {
@@ -110,6 +110,11 @@ namespace Industry.Scenes
             }
 
             if (Input.GetKeyDown(Keys.F1))
+            {
+                hideUI = !hideUI;
+            }
+
+            if (Input.GetKeyDown(Keys.F12))
             {
                 Canvas.DRAW_DEBUG = !Canvas.DRAW_DEBUG;
             }
@@ -182,6 +187,8 @@ namespace Industry.Scenes
             camera.Update(deltaTime, camMove);
         }
 
+        #region Map Re-Generation
+
         private void GenerateNewMap()
         {            
             mapGenTask = new Task<Map>(() => {
@@ -224,7 +231,9 @@ namespace Industry.Scenes
         {
             return mapGenTask != null && !mapGenTask.IsCompleted;
         }
-               
+
+        #endregion
+
         #region UI
 
         string UpdateMouseOverTileText()
