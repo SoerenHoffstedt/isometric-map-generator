@@ -17,6 +17,7 @@ using Industry.Simulation;
 using BarelyUI.Styles;
 using BarelyUI.Layouts;
 using System.Diagnostics;
+using Industry.UI;
 
 namespace Industry.Scenes
 {   
@@ -30,10 +31,7 @@ namespace Industry.Scenes
         GeneratorParameter mapParameter;        
         List<City> cities;
 
-        Button mapGenButton;
-        Task<Map> mapGenTask;
-        double generatingTimer = 0.0;
-        int generatingDots = 1;
+        Task<Map> mapGenTask;        
 
         public MapScene(ContentManager Content, GraphicsDevice GraphicsDevice, Game game)
             : base(Content, GraphicsDevice, game)
@@ -185,8 +183,7 @@ namespace Industry.Scenes
         }
 
         private void GenerateNewMap()
-        {
-            mapGenButton.ChangeText("Generating   ");
+        {            
             mapGenTask = new Task<Map>(() => {
                 Map newMap = new Map(mapParameter, camera, Content, GraphicsDevice, Config.Resolution);
                 return newMap;
@@ -216,34 +213,16 @@ namespace Industry.Scenes
 
         private void UpdateMapGeneration(double deltaTime)
         {
-            if (mapGenTask != null)
-            {
-                if (mapGenTask.IsCompleted)
-                {
-                    ApplyNewGeneratedMap();
-                    mapGenButton.ChangeText("Generate");
-                    generatingTimer = 0.0;
-                    generatingDots = 0;
-                    mapGenTask = null;
-                }
-                else
-                {
-                    generatingTimer += deltaTime;
-                    if (generatingTimer > 0.33)
-                    {
-                        generatingDots = (generatingDots + 1) % 4;
-                        generatingTimer -= 0.33;
-                        if (generatingDots == 0)
-                            mapGenButton.ChangeText("Generating   ");
-                        else if (generatingDots == 1)
-                            mapGenButton.ChangeText("Generating.  ");
-                        else if (generatingDots == 2)
-                            mapGenButton.ChangeText("Generating.. ");
-                        else if (generatingDots == 3)
-                            mapGenButton.ChangeText("Generating...");
-                    }
-                }
+            if (mapGenTask != null && mapGenTask.IsCompleted)
+            {                
+                ApplyNewGeneratedMap();                    
+                mapGenTask = null;                
             }
+        }
+
+        public bool IsGeneratingMap()
+        {
+            return mapGenTask != null && !mapGenTask.IsCompleted;
         }
                
         #region UI
@@ -308,9 +287,9 @@ namespace Industry.Scenes
             forestText.SetValueTextUpdate(() => { return $"{(int)(mapParameter.forestSize * 100)}%"; });
             Slider forestSlider = new Slider((val) => mapParameter.forestSize = val / 100f, 0, 100, 10, (int)(mapParameter.forestSize * 100));            
 
-            Text mouseOverText = new Text("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa").SetTextUpdateFunction(UpdateMouseOverTileText);            
+            Text mouseOverText = new Text("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa").SetTextUpdateFunction(UpdateMouseOverTileText);
 
-            mapGenButton = new Button("Generate");
+            GeneratingButton mapGenButton = new GeneratingButton("Generate", this);
             mapGenButton.OnMouseClick = GenerateNewMap;
 
             main.AddChild(mouseOverText, new Space(6), xDesc, sizeX, new Space(6), yDesc, sizeY, new Space(6), checkWater, 

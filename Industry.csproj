@@ -67,6 +67,7 @@
     <Compile Include="UI\CitiesScreen.cs" />
     <Compile Include="UI\CityDetailScreen.cs" />
     <Compile Include="UI\FinanceScreen.cs" />
+    <Compile Include="UI\GeneratingButton.cs" />
     <Compile Include="UI\StoreScreen.cs" />
     <Compile Include="UI\TestScreen.cs" />
     <Compile Include="UI\UIScreens.cs" />
