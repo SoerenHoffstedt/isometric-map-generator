@@ -18,20 +18,26 @@ using BarelyUI.Styles;
 using BarelyUI.Layouts;
 using System.Diagnostics;
 using Industry.UI;
+using System.Threading;
 
 namespace Industry.Scenes
 {   
     public class MapScene : BarelyScene
     {
-        Map map;
-        Canvas uiCanvas;
-        IsoRenderer renderer;
-        Tileset tileset;
-        SpriteFont cityFont;
-        GeneratorParameter mapParameter;        
-        List<City> cities;
-        Task<Map> mapGenTask;        
-        bool hideUI = false;
+        private Map map;
+        private Canvas uiCanvas;
+        private IsoRenderer renderer;
+        private Tileset tileset;
+        private SpriteFont cityFont;
+
+        private GeneratorParameter mapParameter;
+        private List<City> cities;
+        private bool hideUI = false;
+
+        private Task<Map> mapGenTask;        
+        private CancellationTokenSource tokenSource;
+        private GeneratingButton mapGenButton;
+        private GeneratingCancelButton cancelButton;
 
         public MapScene(ContentManager Content, GraphicsDevice GraphicsDevice, Game game)
             : base(Content, GraphicsDevice, game)
@@ -48,10 +54,10 @@ namespace Industry.Scenes
 
             mapParameter = new GeneratorParameter()
             {
-                size = new Point(32, 32),
+                size = new Point(64, 64),
                 baseHeight = 1,
-                minHeight = 5,
-                maxHeight = 12,
+                minHeight = 6,
+                maxHeight = 15,
                 forestSize = 0f,
                 citiesNumber = 1f,
                 citySize = 7f,
@@ -190,12 +196,28 @@ namespace Industry.Scenes
         #region Map Re-Generation
 
         private void GenerateNewMap()
-        {            
+        {
+            CancelMapGeneration();
+            tokenSource = new CancellationTokenSource();
+            mapGenTask = null;
             mapGenTask = new Task<Map>(() => {
                 Map newMap = new Map(mapParameter, camera, Content, GraphicsDevice, Config.Resolution);
                 return newMap;
-            });
+            }, tokenSource.Token);
             mapGenTask.Start();
+            mapGenButton.GeneratingStarted();
+            cancelButton.GeneratingStarted();
+        }
+
+        private void CancelMapGeneration()
+        {
+            if(mapGenTask != null)
+            {
+                tokenSource.Cancel(true);                
+                mapGenButton.GeneratingStoped();
+                cancelButton.GeneratingStoped();
+                mapGenTask = null;
+            }
         }
 
         private void ApplyNewGeneratedMap()
@@ -222,16 +244,11 @@ namespace Industry.Scenes
         {
             if (mapGenTask != null && mapGenTask.IsCompleted)
             {                
-                ApplyNewGeneratedMap();                    
-                mapGenTask = null;                
+                ApplyNewGeneratedMap();
+                CancelMapGeneration(); 
             }
         }
-
-        public bool IsGeneratingMap()
-        {
-            return mapGenTask != null && !mapGenTask.IsCompleted;
-        }
-
+        
         #endregion
 
         #region UI
@@ -279,12 +296,12 @@ namespace Industry.Scenes
             KeyValueText xDesc = new KeyValueText("mapWidth", "128");
             xDesc.SetValueTextUpdate(() => { return $"{mapParameter.size.X}"; });
             //Slider 0 -> Map Size 32, Slider 4 -> Map Size 512
-            Slider sizeX = new Slider((xVal) => SetMapSize(xVal, true), 0, 4, 1, 0);
+            Slider sizeX = new Slider((xVal) => SetMapSize(xVal, true), 0, 3, 1, 1);
 
             KeyValueText yDesc = new KeyValueText("mapHeight", "512");
             yDesc.SetValueTextUpdate(() => { return $"{mapParameter.size.Y}"; });
             //0 -> 32, 4 -> 512
-            Slider sizeY = new Slider((yVal) => SetMapSize(yVal, false), 0, 4, 1, 0);
+            Slider sizeY = new Slider((yVal) => SetMapSize(yVal, false), 0, 3, 1, 1);
 
             Checkbox checkWater = new Checkbox("hasWater", (val) => { mapParameter.hasWater = val; }, startValue: mapParameter.hasWater);
 
@@ -298,11 +315,17 @@ namespace Industry.Scenes
 
             Text mouseOverText = new Text("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa").SetTextUpdateFunction(UpdateMouseOverTileText);
 
-            GeneratingButton mapGenButton = new GeneratingButton("Generate", this);
+            mapGenButton = new GeneratingButton();
             mapGenButton.OnMouseClick = GenerateNewMap;
 
+            cancelButton = new GeneratingCancelButton();
+            cancelButton.OnMouseClick = CancelMapGeneration;
+
+            Button exitButton = new Button("exit");
+            exitButton.OnMouseClick = game.Exit;
+
             main.AddChild(mouseOverText, new Space(6), xDesc, sizeX, new Space(6), yDesc, sizeY, new Space(6), checkWater, 
-                          cityNumText, cityNumSlider, new Space(6), forestText, forestSlider, new Space(6), mapGenButton);
+                          cityNumText, cityNumSlider, new Space(6), forestText, forestSlider, new Space(6), mapGenButton, cancelButton, exitButton);
 
             uiCanvas.AddChild(main);
 

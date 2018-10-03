@@ -99,7 +99,7 @@ namespace Industry
         {
             double dt = gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            Window.Title = $"Pizza Pizza Me So Hungry - Delta Time: {dt.ToString("0.000")} - FPS: {(1000 / dt).ToString("000.0")}";
+            Window.Title = $"Isometric Map Generator - Delta Time: {dt.ToString("0.000")} - FPS: {(1000 / dt).ToString("000.0")}";
 
             GraphicsDevice.Clear(new Color(61, 59, 76));
 
