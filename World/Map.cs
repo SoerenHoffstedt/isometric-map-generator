@@ -62,10 +62,10 @@ namespace Industry.World
             tweener.Update(deltaTime);                             
         }        
 
-        public void GenerateMap(GeneratorParameter param, int? seed = null)
+        public void GenerateMap(GeneratorParameter param)
         {            
-            MapGenerator generator = new MapGenerator();
-            Tile[,] ts = generator.Generate(param, seed);
+            MapGenerator generator = new MapGenerator(param);
+            Tile[,] ts = generator.Generate();
             tiles = ts;
             cityRooms = generator.cities;
             this.parameter = param;

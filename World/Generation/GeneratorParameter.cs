@@ -13,8 +13,13 @@ namespace Industry.World.Generation
         public int baseHeight;
         public int minHeight;
         public int maxHeight;
+        /// <summary>
+        /// minHeight - waterMinDiff is the height that is water. This allows to have more flat grounds without it all being water.
+        /// </summary>
+        public int waterMinDiff;
         public bool hasCities;
         public bool hasWater;
+        public bool hasRivers;
 
         /// <summary>
         /// float between 0.0 and 1.0 describing the amount of forest on the map
@@ -32,6 +37,8 @@ namespace Industry.World.Generation
         public float citySize;
 
         public float citySizeRandomOffset;
+
+        public int randomSeed;
 
         public Tileset tileset;
     }

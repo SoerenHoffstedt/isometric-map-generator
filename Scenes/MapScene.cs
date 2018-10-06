@@ -31,8 +31,11 @@ namespace Industry.Scenes
         private SpriteFont cityFont;
 
         private GeneratorParameter mapParameter;
+        private bool useOldSeed = false;
         private List<City> cities;
         private bool hideUI = false;
+        private bool keepCurrentSeed = false;
+        private System.Random seedRandom = new System.Random();
 
         private Task<Map> mapGenTask;        
         private CancellationTokenSource tokenSource;
@@ -54,17 +57,20 @@ namespace Industry.Scenes
 
             mapParameter = new GeneratorParameter()
             {
-                size = new Point(64, 64),
+                size = new Point(256, 256),
                 baseHeight = 1,
-                minHeight = 6,
-                maxHeight = 15,
+                minHeight = 10,
+                maxHeight = 25,
+                waterMinDiff = 2,
                 forestSize = 0f,
-                citiesNumber = 1f,
-                citySize = 7f,
+                citiesNumber = 0f,
+                citySize = 5f,
                 citySizeRandomOffset = 4.5f,
                 hasCities = true,
-                hasWater = false,
-                tileset = tileset
+                hasWater = true,
+                hasRivers = false,
+                tileset = tileset,
+                randomSeed = 123456789
             };
 
             cities = new List<City>(64);
@@ -200,6 +206,12 @@ namespace Industry.Scenes
             CancelMapGeneration();
             tokenSource = new CancellationTokenSource();
             mapGenTask = null;
+
+            if (!keepCurrentSeed)
+            {
+                mapParameter.randomSeed = seedRandom.Next();
+            }
+
             mapGenTask = new Task<Map>(() => {
                 Map newMap = new Map(mapParameter, camera, Content, GraphicsDevice, Config.Resolution);
                 return newMap;
@@ -283,31 +295,67 @@ namespace Industry.Scenes
                 mapParameter.size.Y = calcedValue;
         }
 
+        private int GetMapSizeSliderVal(int val)
+        {
+            switch (val)
+            {
+                case 32:
+                    return 0;
+                case 64:
+                    return 1;
+                case 128:
+                    return 2;
+                case 256:
+                    return 3;
+                default:
+                    throw new System.ArgumentException($"Invalid value for map size, has to be 32, 64, 128 or 256, but is: {val}");
+            }
+        }
+
         private void CreateUI()
         {
             Style.PushStyle("mapMain");
             Layout.PushLayout("mapMain");
 
             Style.PushStyle("panelSpriteOn");
-            VerticalLayout main = new VerticalLayout(); // Point.Zero, new Point(300,600));
+            VerticalLayout main = new VerticalLayout();
             main.SetFixedWidth(250);
             Style.PopStyle("panelSpriteOn");
 
+            KeyValueText currSeedLabel = new KeyValueText("currSeed", "123456789");
+            currSeedLabel.SetValueTextUpdate(() => { return mapParameter.randomSeed.ToString(); } );
+            Checkbox keepOldSeedCheck = new Checkbox("keepCurrSeed", (val) => keepCurrentSeed = val, false, keepCurrentSeed);
+
+            //Slider values: 0 -> Map Size 32, Slider 4 -> Map Size 512
             KeyValueText xDesc = new KeyValueText("mapWidth", "128");
-            xDesc.SetValueTextUpdate(() => { return $"{mapParameter.size.X}"; });
-            //Slider 0 -> Map Size 32, Slider 4 -> Map Size 512
-            Slider sizeX = new Slider((xVal) => SetMapSize(xVal, true), 0, 3, 1, 1);
+            xDesc.SetValueTextUpdate(() => { return $"{mapParameter.size.X}"; });            
+            Slider sizeX = new Slider((xVal) => SetMapSize(xVal, true), 0, 4, 1, GetMapSizeSliderVal(mapParameter.size.X));
 
             KeyValueText yDesc = new KeyValueText("mapHeight", "512");
-            yDesc.SetValueTextUpdate(() => { return $"{mapParameter.size.Y}"; });
-            //0 -> 32, 4 -> 512
-            Slider sizeY = new Slider((yVal) => SetMapSize(yVal, false), 0, 3, 1, 1);
+            yDesc.SetValueTextUpdate(() => { return $"{mapParameter.size.Y}"; });            
+            Slider sizeY = new Slider((yVal) => SetMapSize(yVal, false), 0, 4, 1, GetMapSizeSliderVal(mapParameter.size.Y));
+
+            Text terrainLabel = new Text("terrain");
+
+            KeyValueText minHeightDesc = new KeyValueText("minHeight", "");
+            minHeightDesc.SetValueTextUpdate(() => $"{mapParameter.minHeight}");
+            Slider minHeight = new Slider((val) => mapParameter.minHeight = val, 6, 12, 1, mapParameter.minHeight);
+
+            KeyValueText maxHeightDesc = new KeyValueText("maxHeight", "");
+            maxHeightDesc.SetValueTextUpdate(() => $"{mapParameter.maxHeight}");
+            Slider maxHeight = new Slider((val) => mapParameter.maxHeight = val, 12, 30, 1, mapParameter.maxHeight);
+
+            KeyValueText waterDiffDesc = new KeyValueText("waterDiff", "");
+            waterDiffDesc.SetValueTextUpdate(() => $"{mapParameter.waterMinDiff}");
+            Slider waterDiff = new Slider((val) => mapParameter.waterMinDiff = val, 0, 4, 1, mapParameter.waterMinDiff);
 
             Checkbox checkWater = new Checkbox("hasWater", (val) => { mapParameter.hasWater = val; }, startValue: mapParameter.hasWater);
 
+            Checkbox checkRivers = new Checkbox("hasRivers", (val) => { mapParameter.hasRivers = val; }, startValue: mapParameter.hasRivers);
+
             KeyValueText cityNumText = new KeyValueText("cityNum", "100%");
             cityNumText.SetValueTextUpdate(() => { return $"{(int)(mapParameter.citiesNumber * 100f)}%"; });
-            Slider cityNumSlider = new Slider((val) => mapParameter.citiesNumber = val / 100f, 0, 100, 5, 100);
+            Slider cityNumSlider = new Slider((val) => mapParameter.citiesNumber = val / 100f, 0, 100, 5, (int)(mapParameter.citiesNumber * 100f));
 
             KeyValueText forestText = new KeyValueText("forestSize", $"{100}%");
             forestText.SetValueTextUpdate(() => { return $"{(int)(mapParameter.forestSize * 100)}%"; });
@@ -324,8 +372,12 @@ namespace Industry.Scenes
             Button exitButton = new Button("exit");
             exitButton.OnMouseClick = game.Exit;
 
-            main.AddChild(mouseOverText, new Space(6), xDesc, sizeX, new Space(6), yDesc, sizeY, new Space(6), checkWater, 
-                          cityNumText, cityNumSlider, new Space(6), forestText, forestSlider, new Space(6), mapGenButton, cancelButton, exitButton);
+            main.AddChild(mouseOverText, new Space(6), currSeedLabel, keepOldSeedCheck, new Space(6),
+                          xDesc, sizeX, yDesc, sizeY, new Space(6), 
+                          minHeightDesc, minHeight, maxHeightDesc, maxHeight, waterDiffDesc, waterDiff , new Space(6), 
+                          checkWater, checkRivers, cityNumText, cityNumSlider, new Space(6), 
+                          forestText, forestSlider, new Space(6), 
+                          mapGenButton, cancelButton, exitButton);
 
             uiCanvas.AddChild(main);
 

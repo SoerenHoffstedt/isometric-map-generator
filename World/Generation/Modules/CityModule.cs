@@ -16,6 +16,8 @@ namespace Industry.World.Generation.Modules
         private const float minEdgeDistance = 49.0f;
         private const int CITY_MIN_SIZE = 15;
 
+        private const int RECT_PUSH_DIST = 10;
+
         private GeneratorParameter param;
         private Tile[,] tiles;
         private List<Room> cities;
@@ -25,6 +27,11 @@ namespace Industry.World.Generation.Modules
         const double levelThreePer = 0.5;
         const double levelOnePer = 0.2;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cities">Empty list that the cities will be saved into.</param>
+        /// <param name="random"></param>
         public CityModule(List<Room> cities, Random random)
         {
             this.cities = cities;
@@ -39,27 +46,133 @@ namespace Industry.World.Generation.Modules
             this.param = param;
             this.tiles = tiles;
 
-            int numCities = GetNumberOfCities();
+            int numCities = GetNumberOfCities(); //TODO: Propably adjust non placeable.
             int notPlaceableCities = 0;
-            List<Point> cityCenters = new List<Point>(numCities);
+            List<Point> cityCenters = new List<Point>(numCities);           
+            List<CityPlacementInfo> cityPlacementInfo = GetCityPlacementInfo(numCities, ref notPlaceableCities);
 
-            for (int i = 0; i < numCities; i++)
+            foreach(CityPlacementInfo info in cityPlacementInfo)
             {
-                Point center = NewCityCenter(cityCenters);
-                if (!IsInRange(center))
-                {
-                    notPlaceableCities++;
-                    continue;
-                }
-
-                cityCenters.Add(center);
-
-                Room room = GrowCity(center, GetCitySize());
+                cityCenters.Add(info.midPoint);
+                Room room = GrowCity(info.midPoint, info.size);
                 cities.Add(room);
+            }                
+                       
+            Debug.WriteLine($"Number of cities: {numCities}. Not placeable were: {notPlaceableCities}");
+        }
+
+        private List<CityPlacementInfo> GetCityPlacementInfo(int numCities, ref int notPlaceableCities)
+        {
+            List<CityPlacementInfo> cities = new List<CityPlacementInfo>(numCities);
+            List<Rectangle> rects = new List<Rectangle>(numCities);
+
+            for(int i = 0; i < numCities; i++)
+            {
+                int origSize = GetCitySize();
+                int size = (int)(Math.Sqrt(origSize) * 1.7);
+                int x = random.Next(0, param.size.X - size);
+                int y = random.Next(0, param.size.Y - size);
+                //size is used as num of blocks, so take the sqrt here assuming a quadratic city. take 1.5x for padding between cities:
+                Rectangle rect = new Rectangle(x, y, size, size);
+                rects.Add(rect);
+                cities.Add(new CityPlacementInfo(new Point(x, y), origSize));
             }
 
-            Debug.WriteLine($"Number of cities: {numCities}. Not placeable were: {notPlaceableCities}");
+            //now move the rects appart!
+            while (true)
+            {
+                bool smthMoved = false;
+                bool skip = false;
 
+                for (int a = 0; a < rects.Count && !skip; a++)
+                {
+                    for (int b = a + 1; b < rects.Count && !skip; b++)
+                    {
+                        if (a == b)
+                            continue;
+
+                        Rectangle rectA = rects[a];
+                        Rectangle rectB = rects[b];
+
+                        if (rectA.Intersects(rectB))
+                        {
+                            //in which direction do they have to be seperated?
+                            int xMove = rectA.X - rectB.X;
+                            int yMove = rectA.Y - rectB.Y;
+
+                            if (Math.Abs(xMove) >= Math.Abs(yMove))
+                            {
+                                if(xMove > 0)
+                                {
+                                    rectA.X += RECT_PUSH_DIST;
+                                    rectB.X -= RECT_PUSH_DIST;
+                                }
+                                else
+                                {
+                                    rectA.X -= RECT_PUSH_DIST;
+                                    rectB.X += RECT_PUSH_DIST;
+                                }
+                            }
+                            else
+                            {
+                                if (yMove > 0)
+                                {
+                                    rectA.Y += RECT_PUSH_DIST;
+                                    rectB.Y -= RECT_PUSH_DIST;
+                                }
+                                else
+                                {
+                                    rectA.Y -= RECT_PUSH_DIST;
+                                    rectB.Y += RECT_PUSH_DIST;
+                                }
+                            }
+                            smthMoved = true;
+
+                            if (IsOutOfBounds(rectA))
+                            {
+                                rects.RemoveAt(a);
+                                cities.RemoveAt(a);
+                                skip = true;
+                                ++notPlaceableCities;
+                            } else if (IsOutOfBounds(rectB))
+                            {
+                                rects.RemoveAt(b);
+                                cities.RemoveAt(b);
+                                skip = true;
+                                ++notPlaceableCities;
+                            } else
+                            {
+                                rects[a] = rectA;
+                                rects[b] = rectB;
+                            }
+
+                        }
+                    }
+                }
+
+                if (!smthMoved)
+                    break;
+            }
+
+            for(int i = 0; i < cities.Count; i++)
+            {
+                CityPlacementInfo info = cities[i];
+                info.midPoint = rects[i].Center;
+                cities[i] = info;
+            }
+
+            return cities;       
+        }
+
+        private bool IsOutOfBounds(Rectangle r)
+        {
+            Point p = r.Location;
+            if (p.X < 0 || p.X >= param.size.X || p.Y < 0 || p.Y >= param.size.Y)
+                return true;
+            p = r.Location + r.Size;
+            if (p.X < 0 || p.X >= param.size.X || p.Y < 0 || p.Y >= param.size.Y)
+                return true;
+            return false;
         }
 
         private Room GrowCity(Point start, int size)
@@ -186,7 +299,7 @@ namespace Industry.World.Generation.Modules
 
                                 t.type = TileType.House;
                                 t.SetCitizenLevel(lvl);
-                                t.onTopIndex = param.tileset.GetRandomHouseIndex(t.citizenLevel);
+                                t.onTopIndex = param.tileset.GetRandomHouseIndex(t.citizenLevel, random);
 
                                 blockCount++;
                                 room.Add(n);
@@ -236,8 +349,6 @@ namespace Industry.World.Generation.Modules
         {
             return tiles[p.X, p.Y];
         }
-
-
 
         private int GetCitySize()
         {
@@ -396,5 +507,17 @@ namespace Industry.World.Generation.Modules
             return (dir & directions) > 0;
         }
 
+    }
+
+    struct CityPlacementInfo
+    {
+        public Point midPoint;
+        public int size;
+
+        public CityPlacementInfo(Point midPoint, int size)
+        {
+            this.midPoint = midPoint;
+            this.size = size;
+        }
     }
 }

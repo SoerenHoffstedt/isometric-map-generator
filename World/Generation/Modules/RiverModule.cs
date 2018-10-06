@@ -30,6 +30,9 @@ namespace Industry.World.Generation.Modules
 
         private void CreateRivers(GeneratorParameter param, Tile[,] tiles)
         {
+            if (!param.hasRivers)
+                return;
+
             List<HashSet<Point>> w = GenHelper.FloodFill(tiles, (t) => t.type == TileType.Water);
             waters = w.ConvertAll((hs) => new Room(hs));
 

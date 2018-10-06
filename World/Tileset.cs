@@ -173,11 +173,24 @@ namespace Industry.World
             Sprite[] array = houseBuildings[(int)citizenLevel];
             return random.Next(array.Length);
         }
+        
+        public int GetRandomHouseIndex(CitizenLevel citizenLevel, Random r)
+        {
+            Debug.Assert(citizenLevel != CitizenLevel.None);
+            Sprite[] array = houseBuildings[(int)citizenLevel];
+            return r.Next(array.Length);
+        }
 
         public int GetRandomIndex(TileType type)
         {
             Debug.Assert(type != TileType.Nothing && type != TileType.Road && type != TileType.Water && type != TileType.House);
             return random.Next(sprites[(int)type].Length);
+        }
+
+        public int GetRandomIndex(TileType type, Random r)
+        {
+            Debug.Assert(type != TileType.Nothing && type != TileType.Road && type != TileType.Water && type != TileType.House);
+            return r.Next(sprites[(int)type].Length);
         }
 
 

@@ -5,14 +5,15 @@ using static Industry.World.Generation.GenHelper;
 namespace Industry.World.Generation.Modules
 {
     class TerrainModule : IGeneratorModule
-    {
-
+   {
+        
         public void Apply(GeneratorParameter param, Tile[,] tiles)
         {
             Noise.PerlinInit();
-            float[,] heights = Noise.GetNoise(new Point(512, 512), 5, 2, 2.5f, 0.25f);
+            float[,] heights = Noise.GetNoise(new Point(512, 512), 5, 2, 2.5f, 0.25f, param.randomSeed);
 
             int maxHeight = param.maxHeight - 1;
+            int waterHeight = param.minHeight - param.waterMinDiff;
 
             for (int x = 0; x < param.size.X; x++)
             {
@@ -27,7 +28,7 @@ namespace Industry.World.Generation.Modules
                     {
                         int m = param.minHeight;
                         tiles[x, y].height = new int[] { m, m, m, m };
-                        if (param.hasWater)
+                        if (param.hasWater && h < waterHeight)
                             tiles[x, y].type = TileType.Water;
                     }
                 }

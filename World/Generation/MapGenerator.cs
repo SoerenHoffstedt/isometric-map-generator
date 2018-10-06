@@ -20,25 +20,25 @@ namespace Industry.World.Generation
         private GeneratorParameter param;
         private List<IGeneratorModule> modules = new List<IGeneratorModule>(10);
 
-        public MapGenerator()
-        {                        
+        public MapGenerator(GeneratorParameter param)
+        {
+            this.param = param;
             cities = new List<Room>(64);
             waters = new List<Room>(32);
         }
 
-        public Tile[,] Generate(GeneratorParameter param, int? randomSeed = null)
+        public Tile[,] Generate()
         {
-            City.cityID = 1;
-            this.param = param;
+            City.cityID = 1;            
             GenHelper.Size = param.size;
             this.tileset = param.tileset;
-            random = randomSeed == null ? new Random() : new Random(randomSeed.Value);
-
+            random = new Random(param.randomSeed);
+            Debug.WriteLine($"{param.randomSeed}");
             tiles = new Tile[param.size.X, param.size.Y];
             cities.Clear();
             waters.Clear();           
 
-            modules.Add(new TerrainModule());
+            modules.Add(new TerrainModule());            
             modules.Add(new RiverModule(waters));
             modules.Add(new CityModule(cities, random));
             modules.Add(new CityConnectionModule(cities));
