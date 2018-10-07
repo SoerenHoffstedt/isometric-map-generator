@@ -48,13 +48,11 @@ namespace Industry.World.Generation.Modules
 
             int numCities = GetNumberOfCities(); //TODO: Propably adjust non placeable.
             int notPlaceableCities = 0;
-            List<Point> cityCenters = new List<Point>(numCities);           
             List<CityPlacementInfo> cityPlacementInfo = GetCityPlacementInfo(numCities, ref notPlaceableCities);
 
             foreach(CityPlacementInfo info in cityPlacementInfo)
             {
-                cityCenters.Add(info.midPoint);
-                Room room = GrowCity(info.midPoint, info.size);
+                Room room = GrowCity(info);
                 cities.Add(room);
             }                
                        
@@ -64,7 +62,6 @@ namespace Industry.World.Generation.Modules
         private List<CityPlacementInfo> GetCityPlacementInfo(int numCities, ref int notPlaceableCities)
         {
             List<CityPlacementInfo> cities = new List<CityPlacementInfo>(numCities);
-            List<Rectangle> rects = new List<Rectangle>(numCities);
 
             for(int i = 0; i < numCities; i++)
             {
@@ -73,9 +70,8 @@ namespace Industry.World.Generation.Modules
                 int x = random.Next(0, param.size.X - size);
                 int y = random.Next(0, param.size.Y - size);
                 //size is used as num of blocks, so take the sqrt here assuming a quadratic city. take 1.5x for padding between cities:
-                Rectangle rect = new Rectangle(x, y, size, size);
-                rects.Add(rect);
-                cities.Add(new CityPlacementInfo(new Point(x, y), origSize));
+                Rectangle rect = new Rectangle(x, y, size, size);                
+                cities.Add(new CityPlacementInfo(rect, origSize));
             }
 
             //now move the rects appart!
@@ -84,15 +80,12 @@ namespace Industry.World.Generation.Modules
                 bool smthMoved = false;
                 bool skip = false;
 
-                for (int a = 0; a < rects.Count && !skip; a++)
+                for (int a = 0; a < cities.Count && !skip; a++)
                 {
-                    for (int b = a + 1; b < rects.Count && !skip; b++)
+                    for (int b = a + 1; b < cities.Count && !skip; b++)
                     {
-                        if (a == b)
-                            continue;
-
-                        Rectangle rectA = rects[a];
-                        Rectangle rectB = rects[b];
+                        Rectangle rectA = cities[a].rect;
+                        Rectangle rectB = cities[b].rect;
 
                         if (rectA.Intersects(rectB))
                         {
@@ -130,20 +123,18 @@ namespace Industry.World.Generation.Modules
 
                             if (IsOutOfBounds(rectA))
                             {
-                                rects.RemoveAt(a);
                                 cities.RemoveAt(a);
                                 skip = true;
                                 ++notPlaceableCities;
                             } else if (IsOutOfBounds(rectB))
                             {
-                                rects.RemoveAt(b);
                                 cities.RemoveAt(b);
                                 skip = true;
                                 ++notPlaceableCities;
                             } else
                             {
-                                rects[a] = rectA;
-                                rects[b] = rectB;
+                                cities[a].rect = rectA;
+                                cities[b].rect = rectB;
                             }
 
                         }
@@ -154,12 +145,13 @@ namespace Industry.World.Generation.Modules
                     break;
             }
 
+            /*
             for(int i = 0; i < cities.Count; i++)
             {
                 CityPlacementInfo info = cities[i];
                 info.midPoint = rects[i].Center;
                 cities[i] = info;
-            }
+            }*/
 
             return cities;       
         }
@@ -175,8 +167,10 @@ namespace Industry.World.Generation.Modules
             return false;
         }
 
-        private Room GrowCity(Point start, int size)
+        private Room GrowCity(CityPlacementInfo info)
         {
+            Point start = info.GetCityCenter();
+            int size = info.size;
             Room room = new Room();
             Point blockSize = new Point(4, 6);
             int blockCount = 0;
@@ -509,15 +503,20 @@ namespace Industry.World.Generation.Modules
 
     }
 
-    struct CityPlacementInfo
+    class CityPlacementInfo
     {
-        public Point midPoint;
+        public Rectangle rect;
         public int size;
 
-        public CityPlacementInfo(Point midPoint, int size)
+        public CityPlacementInfo(Rectangle rect, int size)
         {
-            this.midPoint = midPoint;
+            this.rect = rect;
             this.size = size;
+        }
+
+        public Point GetCityCenter()
+        {
+            return rect.Center;
         }
     }
 }
