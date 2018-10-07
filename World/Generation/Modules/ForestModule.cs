@@ -14,7 +14,7 @@ namespace Industry.World.Generation.Modules
             if (param.forestSize <= 0f)
                 return;
 
-            bool[,] automata = CellularAutomata.Generate(param.size, 4, 50, true);
+            bool[,] automata = CellularAutomata.Generate(param.size, 4, 50, true, param.randomSeed);
 
             for (int x = 0; x < param.size.X; x++)
             {
