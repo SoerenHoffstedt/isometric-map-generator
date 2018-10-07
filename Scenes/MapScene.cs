@@ -60,7 +60,7 @@ namespace Industry.Scenes
                 size = new Point(256, 256),
                 baseHeight = 1,
                 minHeight = 10,
-                maxHeight = 25,
+                maxHeight = 20,
                 waterMinDiff = 2,
                 forestSize = 0f,
                 citiesNumber = 0f,
@@ -134,6 +134,10 @@ namespace Industry.Scenes
 
         }
 
+        const int MIN_ZOOM = 0;
+        const int MAX_ZOOM = 5;
+        int zoom = 2;
+
         protected override void CameraInput(double deltaTime)
         {
             float dt = (float)deltaTime;
@@ -157,33 +161,23 @@ namespace Industry.Scenes
                     zoomChange++;
                 if (Input.GetKeyDown(Keys.E))
                     zoomChange--;
+                
+                zoom += zoomChange;
+                if (zoom < MIN_ZOOM)
+                    zoom = MIN_ZOOM;
+                if (zoom > MAX_ZOOM)
+                    zoom = MAX_ZOOM;
+                camera.zoom = GetZoomFloat();
 
-                if (zoomChange != 0)
-                {
-                    camera.zoom += zoomChange;
-                    if (camera.zoom < 1f)
-                    {
-                        camera.zoom = 0.5f;
-                    }
-                    else if (camera.zoom > 4f)
-                    {
-                        camera.zoom = 4f;
-                    }
-                    else if (camera.zoom != 0.5f && (camera.zoom % 1.0f) != 0)
-                    {
-                        camera.zoom = 1f;
-                    }
-                }
+                float camSpeed = GetCamSpeed();
 
-                float camSpeed = 1000f;
-
-                if (Input.GetKeyPressed(Keys.D))
+                if (Input.GetKeyPressed(Keys.D) || Input.GetKeyPressed(Keys.Right))
                     camMove.X += camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.A))
+                if (Input.GetKeyPressed(Keys.A) || Input.GetKeyPressed(Keys.Left))
                     camMove.X -= camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.S))
+                if (Input.GetKeyPressed(Keys.S) || Input.GetKeyPressed(Keys.Down))
                     camMove.Y += camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.W))
+                if (Input.GetKeyPressed(Keys.W) || Input.GetKeyPressed(Keys.Up))
                     camMove.Y -= camSpeed * dt;
 
                 if (Input.GetMiddleMouseDown())
@@ -194,10 +188,40 @@ namespace Industry.Scenes
 
                 //Drag axis invertable via Settings, -> *(-1) 
                 if (isDragging)
-                    camMove += Input.GetMousePositionDelta().ToVector2() * 2;
+                    camMove -= Input.GetMousePositionDelta().ToVector2() / camera.zoom;
             }
 
             camera.Update(deltaTime, camMove);
+        }
+
+        float GetCamSpeed()
+        {
+            switch (zoom)
+            {
+                case 0:
+                    return 2000f;
+                case 1:
+                    return 1300f;
+                default:
+                case 2:
+                    return 900f;
+                case 3:
+                    return 700f;
+                case 4:
+                    return 450f;
+                case 5:
+                    return 300f;                
+            }            
+        }
+
+        float GetZoomFloat()
+        {
+            if (zoom == 0)
+                return 0.25f;
+            else if (zoom == 1)
+                return 0.5f;
+            else
+                return zoom - 1;
         }
 
         #region Map Re-Generation

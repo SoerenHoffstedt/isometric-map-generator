@@ -58,7 +58,7 @@ namespace Industry.Renderer
             int spriteCount = 0;
 
             Point resolution = Config.Resolution;
-            SamplerState samplerState = camera.zoom == 0.5f ? SamplerState.LinearWrap : SamplerState.PointWrap;
+            SamplerState samplerState = camera.zoom < 1.0f ? SamplerState.LinearWrap : SamplerState.PointWrap;
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState, transformMatrix: camera.Transform);
 
             Point MouseToWorldCoord(Point screenPos)
