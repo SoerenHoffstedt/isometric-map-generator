@@ -19,6 +19,9 @@ namespace Industry.World.Generation.Modules
 
         public void Apply(GeneratorParameter param, Tile[,] tiles)
         {
+            if (!param.hasCityConnections)
+                return;
+
             HashSet<Connection> connections = new HashSet<Connection>();
 
             for (int i = 0; i < cities.Count; i++)

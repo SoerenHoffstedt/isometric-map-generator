@@ -14,7 +14,8 @@
 	<string id="forestSize">Forest Size</string>
 	<string id="hasWater">Water</string>
 	<string id="hasRivers">Rivers</string>
-	<string id="hasCities">Cities</string>
+	<string id="hasCities">Cities</string>	
+	<string id="hasCityConnections">Connect Cities</string>
 	<string id="mapWidth">Map Width</string>
 	<string id="mapHeight">Map Height</string>
 	<string id="cityNum">Amount of Cities</string>
@@ -27,6 +28,7 @@
 
 	<string id="currSeed">Seed</string>
 	<string id="keepCurrSeed">Keep seed</string>
+
 	
 
 </language>

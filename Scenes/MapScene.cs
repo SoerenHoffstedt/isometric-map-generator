@@ -68,6 +68,7 @@ namespace Industry.Scenes
                 citySizeRandomOffset = 4.5f,
                 hasCities = true,
                 hasWater = true,
+                hasCityConnections = false,
                 hasRivers = false,
                 tileset = tileset,
                 randomSeed = 123456789
@@ -353,6 +354,8 @@ namespace Industry.Scenes
 
             Checkbox checkRivers = new Checkbox("hasRivers", (val) => { mapParameter.hasRivers = val; }, startValue: mapParameter.hasRivers);
 
+            Checkbox checkCitiesConnect = new Checkbox("hasCityConnections", (val) => mapParameter.hasCityConnections = val, false, mapParameter.hasCityConnections);
+
             KeyValueText cityNumText = new KeyValueText("cityNum", "100%");
             cityNumText.SetValueTextUpdate(() => { return $"{(int)(mapParameter.citiesNumber * 100f)}%"; });
             Slider cityNumSlider = new Slider((val) => mapParameter.citiesNumber = val / 100f, 0, 100, 5, (int)(mapParameter.citiesNumber * 100f));
@@ -375,7 +378,7 @@ namespace Industry.Scenes
             main.AddChild(mouseOverText, new Space(6), currSeedLabel, keepOldSeedCheck, new Space(6),
                           xDesc, sizeX, yDesc, sizeY, new Space(6), 
                           minHeightDesc, minHeight, maxHeightDesc, maxHeight, waterDiffDesc, waterDiff , new Space(6), 
-                          checkWater, checkRivers, cityNumText, cityNumSlider, new Space(6), 
+                          checkWater, checkRivers, checkCitiesConnect, cityNumText, cityNumSlider, new Space(6), 
                           forestText, forestSlider, new Space(6), 
                           mapGenButton, cancelButton, exitButton);
 

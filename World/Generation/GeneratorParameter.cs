@@ -20,6 +20,7 @@ namespace Industry.World.Generation
         public bool hasCities;
         public bool hasWater;
         public bool hasRivers;
+        public bool hasCityConnections;
 
         /// <summary>
         /// float between 0.0 and 1.0 describing the amount of forest on the map
