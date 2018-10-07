@@ -276,7 +276,7 @@ namespace Industry.Scenes
                 return $"({p.X},{p.Y}): " + mouseOverTile.type + "; " + city;
             }
             else
-                return "null";
+                return "";
 
         }
 
@@ -380,24 +380,7 @@ namespace Industry.Scenes
                           mapGenButton, cancelButton, exitButton);
 
             uiCanvas.AddChild(main);
-
-            /*
-            VerticalLayout scrollLayout = new VerticalLayout(Point.Zero, new Point(250, 400));
-            scrollLayout.sprite = Style.sprites["panel"];            
-            scrollLayout.anchorX = AnchorX.Middle;
-            scrollLayout.anchorY = AnchorY.Middle;
-            scrollLayout.childLayoutOverwrite = LayoutSize.MatchParent;
-            scrollLayout.AddScrollbar();
-
-            for(int i = 0; i < 15; i++)
-            {
-                Button b = new Button($"Entry {i}");
-                scrollLayout.AddChild(b);
-            }
-
-            uiCanvas.AddChild(scrollLayout);
-            */
-
+            
             Style.PopStyle("mapMain");
             Layout.PopLayout("mapMain");
 

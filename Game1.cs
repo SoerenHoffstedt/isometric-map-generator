@@ -99,7 +99,7 @@ namespace Industry
         {
             double dt = gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            Window.Title = $"Isometric Map Generator - Delta Time: {dt.ToString("0.000")} - FPS: {(1000 / dt).ToString("000.0")}";
+            Window.Title = $"Isometric Map Generator - press F1 to hide UI - Delta Time: {dt.ToString("0.000")} - FPS: {(1000 / dt).ToString("000.0")}";
 
             GraphicsDevice.Clear(new Color(61, 59, 76));
 
