@@ -57,7 +57,7 @@ namespace Industry.Scenes
 
             mapParameter = new GeneratorParameter()
             {
-                size = new Point(256, 256),
+                size = new Point(128, 128),
                 baseHeight = 1,
                 minHeight = 10,
                 maxHeight = 20,
@@ -85,6 +85,8 @@ namespace Industry.Scenes
             renderer = new IsoRenderer(map, tileset, cityFont);            
 
             CreateUI();
+
+            SetCameraBounds();            
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -224,6 +226,16 @@ namespace Industry.Scenes
                 return zoom - 1;
         }
 
+        void SetCameraBounds()
+        {
+            Point size = mapParameter.size;
+            Vector2 up = renderer.GetPositionByCoords(0, 0).ToVector2();
+            Vector2 down = renderer.GetPositionByCoords(size.X, size.Y).ToVector2();
+            Vector2 left = renderer.GetPositionByCoords(0, size.Y).ToVector2();
+            Vector2 right = renderer.GetPositionByCoords(size.X, 0).ToVector2();
+            camera.SetMinMaxPosition(new Vector2(left.X, up.Y), new Vector2(right.X, down.Y));
+        }
+
         #region Map Re-Generation
 
         private void GenerateNewMap()
@@ -275,6 +287,8 @@ namespace Industry.Scenes
                 renderer = new IsoRenderer(map, tileset, cityFont);
             else
                 renderer.ResetMap(map);
+
+            SetCameraBounds();
         }
 
         private void UpdateMapGeneration(double deltaTime)
