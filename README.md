@@ -22,10 +22,10 @@ You can find a downloadable release on [itch.io](https://meursault.itch.io/isome
 - [ ] Better forests
 - [ ] Generating city names
 - [ ] Graphics improvement
-..- [ ] Bridges
-..- [ ] More trees
-..- [ ] Animated water
-..- [ ] Dynamic lighting
+  - [ ] Bridges
+  - [ ] More trees
+  - [ ] Animated water
+  - [ ] Dynamic lighting
 
 ## Project Structure
 
