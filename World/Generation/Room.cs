@@ -96,5 +96,10 @@ namespace Industry.World.Generation
             return toReturn;
         }
 
+        public double DistanceToSquared(Room other)
+        {
+            return (MiddlePoint.ToVector2() - other.MiddlePoint.ToVector2()).LengthSquared();
+        }
+
     }
 }

@@ -11,23 +11,24 @@ namespace Industry.World.Generation.Modules
     public class CityConnectionModule : IGeneratorModule
     {
         private List<Room> cities;
+        private Random random;
 
-        public CityConnectionModule(List<Room> cities)
+        public CityConnectionModule(List<Room> cities, Random random)
         {
             this.cities = cities;
-        }
+            this.random = random;
+        }        
 
         public void Apply(GeneratorParameter param, Tile[,] tiles)
         {
             if (!param.hasCityConnections)
                 return;
 
-            HashSet<Connection> connections = new HashSet<Connection>();
+            List<(Room, Room)> toConnect = GetRoomsToConnect();
 
-            for (int i = 0; i < cities.Count; i++)
+            foreach ((Room r, Room r2) in toConnect)
             {
-                Room r = cities[i];
-
+                Debug.Assert(r != r2);
                 if (r == null || r.Tiles.Count < 5)
                     continue;
 
@@ -53,99 +54,71 @@ namespace Industry.World.Generation.Modules
 
                 Debug.Assert(tiles[start.X, start.Y].type == TileType.Road);
 
-                //get the three nearest cities. This is dumb. Replace it with somethin sane.
-                Room[] nearest = new Room[3];
-                for (int k = 0; k < cities.Count; k++)
+                if (r2 != null && r2.Tiles.Count > 5)
                 {
-                    if (k == i)
-                        continue;
 
-                    Room r2 = cities[k];
 
-                    float distance = (r.MiddlePoint - r2.MiddlePoint).ToVector2().LengthSquared();
-
-                    bool placed = false;
-
-                    for (int l = 0; l < 3; l++)
+                    Point target = r2.MiddlePoint; //TODO: get road tile of nearest[l].Tiles nearest to start
+                    float targetDist = float.MaxValue;
+                    foreach (Point p in r2.Tiles)
                     {
-                        if (nearest[l] == null)
+                        if (tiles[p.X, p.Y].type == TileType.Road && tiles[p.X, p.Y].AllHeightsAreSame())
                         {
-                            nearest[l] = r2;
-                            placed = true;
-                            break;
-                        }
-                    }
-                    if (!placed)
-                    {
-                        for (int l = 0; l < 3; l++)
-                        {
-                            float oldDistance = (r.MiddlePoint - nearest[l].MiddlePoint).ToVector2().LengthSquared();
-                            if (distance < oldDistance)
+                            float dist = (start - p).ToVector2().LengthSquared();
+                            if (dist < targetDist)
                             {
-                                nearest[l] = r2;
-                                break;
+                                target = p;
+                                targetDist = dist;
                             }
                         }
                     }
-                }
+                    Debug.Assert(tiles[target.X, target.Y].type == TileType.Road);
 
-                for (int l = 0; l < 3; l++)
-                {
-                    if (nearest[l] != null && nearest[l].Tiles.Count > 5)
+
+                    Func<Tile, bool> IsWalkable = (t) => t.IsRoadPlaceable() && t.type != TileType.House;
+                    Func<Tile, float> Cost = (t) =>
                     {
-
-
-                        Point target = nearest[l].MiddlePoint; //TODO: get road tile of nearest[l].Tiles nearest to start
-                        float targetDist = float.MaxValue;
-                        foreach (Point p in nearest[l].Tiles)
-                        {
-                            if (tiles[p.X, p.Y].type == TileType.Road)
-                            {
-                                float dist = (start - p).ToVector2().LengthSquared();
-                                if (dist < targetDist)
-                                {
-                                    target = p;
-                                    targetDist = dist;
-                                }
-                            }
-                        }
-                        Debug.Assert(tiles[target.X, target.Y].type == TileType.Road);
-
-
-                        Func<Tile, bool> IsWalkable = (t) => t.IsRoadPlaceable() && t.type != TileType.House;
-                        Func<Tile, float> Cost = (t) =>
-                        {
-                            if (t.type == TileType.Road)
-                                return 1f;
-                            else if (t.type == TileType.Water)
-                                return 7f;
-                            else if (t.type == TileType.Forest)
-                                return 4f;
-                            else
-                                return 4f;
-                        };
-
-                        List<Point> path = GenHelper.AStar(tiles, start, target, IsWalkable, Cost);
-                        if (path != null && !(path.Count == 1 && path[0] == new Point(-1, -1)))
-                        {
-                            for (int k = 0; k < path.Count; k++)
-                            {
-                                Point p = path[k];
-                                //if(k == 0 || k == path.Count - 1)
-                                //     tiles[p.X, p.Y].color = Color.Green;
-
-                                tiles[p.X, p.Y].type = TileType.Road;
-                            }
-                        }
+                        if (t.type == TileType.Road)
+                            return 1f;
+                        else if (t.type == TileType.Water)
+                            return 7f;
+                        else if (t.type == TileType.Forest)
+                            return 4f;
                         else
-                        {
-                            Debug.WriteLine("Target not reached");
-                        }
+                            return 4f;
+                    };
 
+                    List<Point> path = GenHelper.AStar(tiles, start, target, IsWalkable, Cost);
+                    if (path != null && !(path.Count == 1 && path[0] == new Point(-1, -1)))
+                    {
+                        for (int k = 0; k < path.Count; k++)
+                        {
+                            Point p = path[k];
+                            //if(k == 0 || k == path.Count - 1)
+                            //     tiles[p.X, p.Y].color = Color.Green;
+
+                            tiles[p.X, p.Y].type = TileType.Road;
+                        }
                     }
+                    else
+                    {
+                        Debug.WriteLine("Target not reached");
+                    }
+
                 }
 
-            }
+            }            
         }
+
+        private List<(Room, Room)> GetRoomsToConnect()
+        {
+            RoomGraph graph = new RoomGraph();
+            graph.AddNodesAndConnectAll(cities);
+            RoomGraph minSpan = graph.MinSpanningTree(random);                     
+            List<(Room, Room)> toConnect = minSpan.ToConnectionList();
+
+            return toConnect;
+        }
+        
     }
 }

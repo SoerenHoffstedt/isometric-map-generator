@@ -37,11 +37,14 @@ namespace Industry.World.Generation
             tiles = new Tile[param.size.X, param.size.Y];
             cities.Clear();
             waters.Clear();           
-
+            
             modules.Add(new TerrainModule());            
-            modules.Add(new RiverModule(waters));
-            modules.Add(new CityModule(cities, random));
-            modules.Add(new CityConnectionModule(cities));
+            if(param.hasRivers)
+                modules.Add(new RiverModule(waters));
+            if(param.hasCities)
+                modules.Add(new CityModule(cities, random));
+            if(param.hasCityConnections)
+                modules.Add(new CityConnectionModule(cities, random));
             modules.Add(new ForestModule());
 
             foreach(IGeneratorModule module in modules)
