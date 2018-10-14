@@ -8,48 +8,65 @@ using Barely.Util.Priority_Queue;
 namespace Industry.World.Generation
 {
     public class RoomGraph
-    {
-        public List<Node> nodes;
-        public Dictionary<Room, Node> roomToNode;
+    {        
+        public List<Room> rooms;
+        public Dictionary<Room, List<Room>> connections;
 
         public RoomGraph()
         {
-            nodes = new List<Node>(32);
-            roomToNode = new Dictionary<Room, Node>(32);
+            rooms       = new List<Room>(32);
+            connections = new Dictionary<Room, List<Room>>(32);
         }
 
-        public void AddNodesAndConnectAll(List<Room> rooms)
+        public void AddRoomsAndConnectAll(List<Room> toAdd)
         {
-            for (int i = 0; i < rooms.Count; i++)
-            {
-                Node n = new Node(rooms[i]);
-                roomToNode.Add(rooms[i], n);
-                nodes.Add(n);
+            for (int i = 0; i < toAdd.Count; i++)
+            {                
+                rooms.Add(toAdd[i]);
+                connections.Add(toAdd[i], new List<Room>(8));
             }
 
             for(int i = 0; i < rooms.Count; i++)
             {
-                Node n = roomToNode[rooms[i]];
-
-                for (int j = 0; j < rooms.Count; j++)
+                Room r = rooms[i];
+                for (int j = i + 1; j < rooms.Count; j++)
                 {
-                    if (i == j)
-                        continue;
-
-                    Node other = roomToNode[rooms[j]];
-                    n.AddConnection(other);
+                    Room r2 = rooms[j];
+                    connections[r].Add(r2);
+                    connections[r2].Add(r);
                 }
             }
-        }     
+        }
 
-        public double Distance(Node a, Node b)
+        public void AddConnection(Room from, Room to)
         {
-            return (a.room.MiddlePoint.ToVector2() - b.room.MiddlePoint.ToVector2()).LengthSquared();
+            if (!rooms.Contains(from))
+            {
+                rooms.Add(from);
+                connections.Add(from, new List<Room>(8));
+            }
+            connections[from].Add(to);
+        }
+
+        public void AddConnectionBothWays(Room from, Room to)
+        {
+            if (!rooms.Contains(from))
+            {
+                rooms.Add(from);
+                connections.Add(from, new List<Room>(8));
+            }
+            if (!rooms.Contains(to))
+            {
+                rooms.Add(to);
+                connections.Add(to, new List<Room>(8));
+            }
+            connections[from].Add(to);
+            connections[to].Add(from);
         }
 
         public int Count
         {
-            get { return nodes.Count; }
+            get { return rooms.Count; }
         }
 
         /// <summary>
@@ -59,43 +76,35 @@ namespace Industry.World.Generation
         /// <returns>The minimum spanning tree.</returns>
         public RoomGraph MinSpanningTree(Random random)
         {
-            if (nodes.Count == 0)
+            if (Count == 0)
                 return new RoomGraph();
 
-            SimplePriorityQueue<Node> queue = new SimplePriorityQueue<Node>();
-            Dictionary<Node, double> distanceToSpannTree = new Dictionary<Node, double>(nodes.Count);
-            Dictionary<Node, Node> parentNode = new Dictionary<Node, Node>(nodes.Count);
-       
-            foreach(Node n in nodes)
+            SimplePriorityQueue<Room> queue = new SimplePriorityQueue<Room>();
+            Dictionary<Room, double> distanceToSpannTree = new Dictionary<Room, double>(Count);
+            Dictionary<Room, Room> parentRoom = new Dictionary<Room, Room>(Count);       
+
+            foreach(Room r in rooms)
             {
-                foreach(Node inner in nodes)
-                {
-                    bool isEqual = n == inner;
-                }
+                queue.Enqueue(r, double.MaxValue);
+                distanceToSpannTree.Add(r, double.MaxValue);
+                parentRoom.Add(r, null);
             }
 
-            foreach(Node n in nodes)
-            {
-                queue.Enqueue(n, double.MaxValue);
-                distanceToSpannTree.Add(n, double.MaxValue);
-                parentNode.Add(n, null);
-            }
-
-            int start = random.Next(this.Count);
-            distanceToSpannTree[nodes[start]] = 0;
-            queue.UpdatePriority(nodes[start], 0);
+            int start = random.Next(Count);
+            distanceToSpannTree[rooms[start]] = 0;
+            queue.UpdatePriority(rooms[start], 0);
 
             while(queue.Count > 0)
             {
-                Node n = queue.Dequeue();
-                foreach(Node other in n.connections)
+                Room r = queue.Dequeue();
+                foreach(Room other in connections[r])
                 {
                     if (queue.Contains(other))  //could keep track of this separatly (HashSet) because this is linear. 
                     {
-                        double dist = Distance(n, other);
+                        double dist = r.DistanceToSquared(other);
                         if(dist < distanceToSpannTree[other])
                         {
-                            parentNode[other] = n;
+                            parentRoom[other] = r;
                             distanceToSpannTree[other] = dist;
                             queue.UpdatePriority(other, dist);
                         }
@@ -105,18 +114,18 @@ namespace Industry.World.Generation
 
             //insert the parentNode pairs into a new graph
             RoomGraph minSpanTree = new RoomGraph();            
-            foreach(Node n in nodes)
-            {
-                Node newNode = new Node(n.room);
-                minSpanTree.nodes.Add(newNode);
-                minSpanTree.roomToNode.Add(n.room, newNode);
+            foreach(Room r in rooms)
+            {                
+                minSpanTree.rooms.Add(r);
+                minSpanTree.connections.Add(r, new List<Room>(8));
             }            
 
-            foreach (var p in parentNode)
+            foreach (var p in parentRoom)
             {                                 
                 if(p.Key != null && p.Value != null)
                 {
-                    minSpanTree.roomToNode[p.Key.room].AddConnection(minSpanTree.roomToNode[p.Value.room]);                    
+                    minSpanTree.connections[p.Key].Add(p.Value);
+                    minSpanTree.connections[p.Value].Add(p.Key);                    
                 }
             }
 
@@ -131,41 +140,27 @@ namespace Industry.World.Generation
         {            
             HashSet<(Room, Room)> cons = new HashSet<(Room, Room)>();            
 
-            foreach(Node n in nodes)
+            foreach(Room r in rooms)
             {
-                foreach(Node neighbour in n.connections)
+                foreach(Room neighbour in connections[r])
                 {
-                    cons.Add((n.room, neighbour.room));
+                    var pair1 = (r, neighbour);
+                    var pair2 = (neighbour, r);
+                    if (!cons.Contains(pair1) && !cons.Contains(pair2))
+                        cons.Add(pair1);
                 }
             }
 
-            List<(Room, Room)> connections = new List<(Room, Room)>(cons.Count);
+            List<(Room, Room)> toReturn = new List<(Room, Room)>(cons.Count);
 
             foreach(var pair in cons)
             {
-                connections.Add(pair);
+                toReturn.Add(pair);
             }
 
-            return connections;
+            return toReturn;
         }
 
-    }
-
-    public class Node
-    {
-        public Room room;       
-        public List<Node> connections;
-
-        public Node(Room room){
-            this.room = room;
-            connections = new List<Node>(16);
-        }
-
-        public void AddConnection(Node to)
-        {
-            connections.Add(to);
-        }
-        
     }
 
 }
