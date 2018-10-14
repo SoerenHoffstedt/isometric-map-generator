@@ -15,8 +15,8 @@ namespace Industry.World.Generation.Modules
         private Point chunkPerCity = new Point(32, 32);
         private const float minEdgeDistance = 49.0f;
         private const int CITY_MIN_SIZE = 15;
-
-        private const int RECT_PUSH_DIST = 10;
+        private const int RECT_PUSH_DIST = 20;
+        private const int PUSHED_OUT_OF_BOUNDS_MAX = 5;
 
         private GeneratorParameter param;
         private Tile[,] tiles;
@@ -28,7 +28,7 @@ namespace Industry.World.Generation.Modules
         const double levelOnePer = 0.2;
 
         /// <summary>
-        /// 
+        /// Generate cities by finding random positions for the cities on the map that don't overlap and grow the cities from these positions.
         /// </summary>
         /// <param name="cities">Empty list that the cities will be saved into.</param>
         /// <param name="random"></param>
@@ -40,9 +40,6 @@ namespace Industry.World.Generation.Modules
 
         public void Apply(GeneratorParameter param, Tile[,] tiles)
         {
-            if (!param.hasCities)
-                return;
-
             this.param = param;
             this.tiles = tiles;
 
@@ -50,122 +47,16 @@ namespace Industry.World.Generation.Modules
             int notPlaceableCities = 0;
             List<CityPlacementInfo> cityPlacementInfo = GetCityPlacementInfo(numCities, ref notPlaceableCities);
 
-            foreach(CityPlacementInfo info in cityPlacementInfo)
+            foreach (CityPlacementInfo info in cityPlacementInfo)
             {
                 Room room = GrowCity(info);
                 cities.Add(room);
-            }                
-                       
+            }
+
             Debug.WriteLine($"Number of cities: {numCities}. Not placeable were: {notPlaceableCities}");
         }
 
-        private List<CityPlacementInfo> GetCityPlacementInfo(int numCities, ref int notPlaceableCities)
-        {
-            List<CityPlacementInfo> cities = new List<CityPlacementInfo>(numCities);
-
-            for(int i = 0; i < numCities; i++)
-            {
-                int origSize = GetCitySize();
-                int size = (int)(Math.Sqrt(origSize) * 1.7);
-                int x = random.Next(0, param.size.X - size);
-                int y = random.Next(0, param.size.Y - size);
-                //size is used as num of blocks, so take the sqrt here assuming a quadratic city. take 1.5x for padding between cities:
-                Rectangle rect = new Rectangle(x, y, size, size);                
-                cities.Add(new CityPlacementInfo(rect, origSize));
-            }
-
-            //now move the rects appart!
-            while (true)
-            {
-                bool smthMoved = false;
-                bool skip = false;
-
-                for (int a = 0; a < cities.Count && !skip; a++)
-                {
-                    for (int b = a + 1; b < cities.Count && !skip; b++)
-                    {
-                        Rectangle rectA = cities[a].rect;
-                        Rectangle rectB = cities[b].rect;
-
-                        if (rectA.Intersects(rectB))
-                        {
-                            //in which direction do they have to be seperated?
-                            int xMove = rectA.X - rectB.X;
-                            int yMove = rectA.Y - rectB.Y;
-
-                            if (Math.Abs(xMove) >= Math.Abs(yMove))
-                            {
-                                if(xMove > 0)
-                                {
-                                    rectA.X += RECT_PUSH_DIST;
-                                    rectB.X -= RECT_PUSH_DIST;
-                                }
-                                else
-                                {
-                                    rectA.X -= RECT_PUSH_DIST;
-                                    rectB.X += RECT_PUSH_DIST;
-                                }
-                            }
-                            else
-                            {
-                                if (yMove > 0)
-                                {
-                                    rectA.Y += RECT_PUSH_DIST;
-                                    rectB.Y -= RECT_PUSH_DIST;
-                                }
-                                else
-                                {
-                                    rectA.Y -= RECT_PUSH_DIST;
-                                    rectB.Y += RECT_PUSH_DIST;
-                                }
-                            }
-                            smthMoved = true;
-
-                            if (IsOutOfBounds(rectA))
-                            {
-                                cities.RemoveAt(a);
-                                skip = true;
-                                ++notPlaceableCities;
-                            } else if (IsOutOfBounds(rectB))
-                            {
-                                cities.RemoveAt(b);
-                                skip = true;
-                                ++notPlaceableCities;
-                            } else
-                            {
-                                cities[a].rect = rectA;
-                                cities[b].rect = rectB;
-                            }
-
-                        }
-                    }
-                }
-
-                if (!smthMoved)
-                    break;
-            }
-
-            /*
-            for(int i = 0; i < cities.Count; i++)
-            {
-                CityPlacementInfo info = cities[i];
-                info.midPoint = rects[i].Center;
-                cities[i] = info;
-            }*/
-
-            return cities;       
-        }
-
-        private bool IsOutOfBounds(Rectangle r)
-        {
-            Point p = r.Location;
-            if (p.X < 0 || p.X >= param.size.X || p.Y < 0 || p.Y >= param.size.Y)
-                return true;
-            p = r.Location + r.Size;
-            if (p.X < 0 || p.X >= param.size.X || p.Y < 0 || p.Y >= param.size.Y)
-                return true;
-            return false;
-        }
+        #region City Growth
 
         private Room GrowCity(CityPlacementInfo info)
         {
@@ -207,7 +98,7 @@ namespace Industry.World.Generation.Modules
                 Point pos = curr.pos;
                 if (!IsInRange(pos))
                     continue;
-                tiles[pos.X, pos.Y].type = TileType.Road;
+                tiles[pos.X, pos.Y].type = TileType.Road;                
 
                 foreach (Direction d in directions)
                 {
@@ -278,7 +169,7 @@ namespace Industry.World.Generation.Modules
 
                         foreach (Point n in DirectionalNeighbours(p, d))
                         {
-                            if (IsInRange(n) && GetTile(n).IsHousePlaceable())
+                            if (GetTile(n).IsHousePlaceable())
                             {
                                 Tile t = GetTile(n);
 
@@ -437,21 +328,175 @@ namespace Industry.World.Generation.Modules
                     p2 = new Point(pos.X, pos.Y + 1);
                     break;
             }
-            yield return p1;
-            yield return p2;
+            if (IsInRange(p1))
+                yield return p1;
+            if (IsInRange(p2))
+                yield return p2;
         }
 
         private bool DirectionNeighbourIsRoad(Point pos, Direction dir)
         {
             foreach (Point p in DirectionalNeighbours(pos, dir))
             {
-                if (IsInRange(p) && tiles[p.X, p.Y].type == TileType.Road)
+                if (tiles[p.X, p.Y].type == TileType.Road)
                     return true;
             }
             return false;
         }
 
+        #endregion
+
+        #region City placement
+
+        /// <summary>
+        /// Creates a list of placement info for cities. The placement info contains the size of the city and a rectangle of its position. 
+        /// The middle point of the rectangle is the position where the city generation is started from.
+        /// </summary>
+        /// <param name="numCities">The number of cities to create placement info for.</param>
+        /// <param name="notPlaceableCities">Counting the not placeable cities (pushed out of bounds)</param>
+        /// <returns></returns>
+        private List<CityPlacementInfo> GetCityPlacementInfo(int numCities, ref int notPlaceableCities)
+        {
+            List<CityPlacementInfo> cities = new List<CityPlacementInfo>(numCities);
+
+            for (int i = 0; i < numCities; i++)
+            {
+                int origSize = GetCitySize();
+                int size = (int)(Math.Sqrt(origSize) * 1.4);
+                int x = random.Next(0, param.size.X - size);
+                int y = random.Next(0, param.size.Y - size);
+                //size is used as num of blocks, so take the sqrt here assuming a quadratic city. take 1.5x for padding between cities:
+                Rectangle rect = new Rectangle(x, y, size, size);
+                cities.Add(new CityPlacementInfo(rect, origSize));
+            }
+
+            //now move the rects appart!
+            while (true)
+            {
+                bool smthMoved = false;
+                bool skip = false;
+
+                for (int a = 0; a < cities.Count && !skip; a++)
+                {
+                    for (int b = a + 1; b < cities.Count && !skip; b++)
+                    {
+                        Rectangle rectA = cities[a].rect;
+                        Rectangle rectB = cities[b].rect;
+
+                        if (rectA.Intersects(rectB))
+                        {
+                            //in which direction do the rects have to be seperated? take the axis they are seperated more.
+                            int xMove = rectA.X - rectB.X;
+                            int yMove = rectA.Y - rectB.Y;
+
+                            if (Math.Abs(xMove) >= Math.Abs(yMove))
+                            {
+                                //if xMove is positive, push rectA in positive direction, and rectB in negative. if xMove is negative do it the other way around
+                                int modifier = xMove > 0 ? 1 : -1;
+                                rectA.X += RECT_PUSH_DIST * modifier;
+                                rectB.X -= RECT_PUSH_DIST * modifier;
+                            }
+                            else
+                            {
+                                int modifier = yMove > 0 ? 1 : -1; //see comment above
+                                rectA.Y += RECT_PUSH_DIST * modifier;
+                                rectB.Y -= RECT_PUSH_DIST * modifier;
+                            }
+                            smthMoved = true;
+
+                            //check if one of the rects is pushed out of bounds and move it inside bounds again.
+                            if (IsOutOfBounds(rectA))
+                            {
+                                MoveIntoBounds(ref rectA);
+                                cities[a].outOfBoundsCount += 1;
+                            }
+
+                            if (IsOutOfBounds(rectB))
+                            {
+                                MoveIntoBounds(ref rectB);
+                                cities[b].outOfBoundsCount += 1;
+                            }
+
+                            cities[a].rect = rectA;
+                            cities[b].rect = rectB;
+
+                            //if a city is pushed out of bounds again and again, it could end in endless loop, so after X of pushed, remove a city
+                            if (cities[a].outOfBoundsCount > PUSHED_OUT_OF_BOUNDS_MAX)
+                            {
+                                cities.RemoveAt(a);
+                                notPlaceableCities += 1;
+                                skip = true;
+                                b -= 1; //a is smaller than b, so decrease b by one.
+                            }
+                            if (cities[b].outOfBoundsCount > PUSHED_OUT_OF_BOUNDS_MAX)
+                            {
+                                cities.RemoveAt(b);
+                                notPlaceableCities += 1;
+                                skip = true;
+                            }
+
+                        }
+                    }
+                }
+
+                if (!smthMoved)
+                    break;
+            }
+
+            //remove those rects that are at least half water
+            cities.RemoveAll((info) => {
+                int waterCount = 0;
+                for (int x = info.rect.X; x < info.rect.X + info.rect.Width; x++)
+                {
+                    for (int y = info.rect.Y; y < info.rect.Y + info.rect.Height; y++)
+                    {
+                        if (tiles[x, y].type == TileType.Water)
+                            waterCount += 1;
+                    }
+                }
+                return waterCount > (info.rect.Width * info.rect.Height) / 2;
+            });
+
+            return cities;
+        }
+
+        /// <summary>
+        /// Move the referenced rectangle into the bounds of the map.
+        /// </summary>
+        /// <param name="rect">A reference to the rectangle to be moved inside the map bounds.</param>
+        private void MoveIntoBounds(ref Rectangle rect)
+        {
+            if (rect.X < 0)
+                rect.X = 4;
+            if (rect.Right >= param.size.X)
+                rect.X = param.size.X - rect.Size.X - 4;
+            if (rect.Y < 0)
+                rect.Y = 4;
+            if (rect.Y + rect.Size.Y >= param.size.Y)
+                rect.Y = param.size.Y - rect.Size.Y - 4;
+        }
+
+        /// <summary>
+        /// Check if a rectangle is out of the bounds of the map.
+        /// </summary>
+        /// <param name="r">The rectangle to be checked.</param>
+        /// <returns>Boolean indicating if the rectangle is out of bounds.</returns>
+        private bool IsOutOfBounds(Rectangle r)
+        {
+            Point p = r.Location;
+            if (p.X < 0 || p.X >= param.size.X || p.Y < 0 || p.Y >= param.size.Y)
+                return true;
+            p = r.Location + r.Size;
+            if (p.X < 0 || p.X >= param.size.X || p.Y < 0 || p.Y >= param.size.Y)
+                return true;
+            return false;
+        }
+
+        #endregion
+
     }
+
+    #region Helping Data Structures
 
     [Flags]
     enum Direction
@@ -507,11 +552,13 @@ namespace Industry.World.Generation.Modules
     {
         public Rectangle rect;
         public int size;
+        public int outOfBoundsCount;
 
         public CityPlacementInfo(Rectangle rect, int size)
         {
             this.rect = rect;
             this.size = size;
+            outOfBoundsCount = 0;
         }
 
         public Point GetCityCenter()
@@ -519,4 +566,6 @@ namespace Industry.World.Generation.Modules
             return rect.Center;
         }
     }
+
+    #endregion
 }
