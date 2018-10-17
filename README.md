@@ -14,11 +14,11 @@ You can find a downloadable release on [itch.io](https://meursault.itch.io/isome
 - [x] City generation
 - [x] Usability improvements (movement, zoom, etc)
 - [x] Reproducible random generation by a seed
+- [x] Better road connections between cities
 - [ ] Bug fixes
 - [ ] More diverse landscapes, especially mountains
 - [ ] More efficient and better rivers
 - [ ] More varied city sizes
-- [ ] Better roads between cities
 - [ ] Better forests
 - [ ] Generating city names
 - [ ] Graphics improvement

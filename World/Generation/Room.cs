@@ -101,5 +101,10 @@ namespace Industry.World.Generation
             return (MiddlePoint.ToVector2() - other.MiddlePoint.ToVector2()).LengthSquared();
         }
 
+        public double DistanceTo(Room other)
+        {
+            return (MiddlePoint.ToVector2() - other.MiddlePoint.ToVector2()).Length();
+        }
+
     }
 }

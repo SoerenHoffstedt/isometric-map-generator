@@ -118,8 +118,7 @@ namespace Industry.World.Generation
         {
             Dictionary<Point, Point> prev = new Dictionary<Point, Point>();
             Dictionary<Point, float> cost = new Dictionary<Point, float>();
-
-            List<Point> unknownNodes = new List<Point>(map.GetLength(0) * map.GetLength(1));
+            
             for (int x = 0; x < map.GetLength(0); x++)
             {
                 for (int y = 0; y < map.GetLength(1); y++)
@@ -127,7 +126,6 @@ namespace Industry.World.Generation
                     Point n = new Point(x, y);
                     if (n != source)
                     {
-                        unknownNodes.Add(n);
                         cost.Add(n, float.MaxValue);
                         prev.Add(n, new Point(-1, -1));
                     }

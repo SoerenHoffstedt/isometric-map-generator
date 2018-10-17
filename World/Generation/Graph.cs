@@ -124,8 +124,7 @@ namespace Industry.World.Generation
             {                                 
                 if(p.Key != null && p.Value != null)
                 {
-                    minSpanTree.connections[p.Key].Add(p.Value);
-                    minSpanTree.connections[p.Value].Add(p.Key);                    
+                    minSpanTree.AddConnectionBothWays(p.Key, p.Value);                 
                 }
             }
 

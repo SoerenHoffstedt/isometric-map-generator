@@ -72,7 +72,6 @@
     <Compile Include="UI\StoreScreen.cs" />
     <Compile Include="UI\TestScreen.cs" />
     <Compile Include="UI\UIScreens.cs" />
-    <Compile Include="World\Generation\CityGenerator.cs" />
     <Compile Include="World\Generation\GeneratorHelper.cs" />
     <Compile Include="World\Generation\GeneratorParameter.cs" />
     <Compile Include="World\Generation\Graph.cs" />

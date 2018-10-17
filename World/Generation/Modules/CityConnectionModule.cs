@@ -27,7 +27,7 @@ namespace Industry.World.Generation.Modules
             List<(Room, Room)> toConnect = GetRoomsToConnect();
 
             foreach ((Room r, Room r2) in toConnect)
-            {
+            {           
                 Debug.Assert(r != r2);
                 if (r == null || r.Tiles.Count < 5)
                     continue;
@@ -56,9 +56,7 @@ namespace Industry.World.Generation.Modules
 
                 if (r2 != null && r2.Tiles.Count > 5)
                 {
-
-
-                    Point target = r2.MiddlePoint; //TODO: get road tile of nearest[l].Tiles nearest to start
+                    Point target = r2.MiddlePoint;
                     float targetDist = float.MaxValue;
                     foreach (Point p in r2.Tiles)
                     {
@@ -74,8 +72,7 @@ namespace Industry.World.Generation.Modules
                     }
                     Debug.Assert(tiles[target.X, target.Y].type == TileType.Road);
 
-
-                    Func<Tile, bool> IsWalkable = (t) => t.IsRoadPlaceable() && t.type != TileType.House;
+                    Func<Tile, bool> IsWalkable = (t) => t.IsRoadPlaceable();
                     Func<Tile, float> Cost = (t) =>
                     {
                         if (t.type == TileType.Road)
@@ -83,9 +80,11 @@ namespace Industry.World.Generation.Modules
                         else if (t.type == TileType.Water)
                             return 7f;
                         else if (t.type == TileType.Forest)
-                            return 4f;
+                            return 3f;
+                        else if (t.type == TileType.House)
+                            return 20f;
                         else
-                            return 4f;
+                            return 3f;
                     };
 
                     List<Point> path = GenHelper.AStar(tiles, start, target, IsWalkable, Cost);
@@ -93,10 +92,7 @@ namespace Industry.World.Generation.Modules
                     {
                         for (int k = 0; k < path.Count; k++)
                         {
-                            Point p = path[k];
-                            //if(k == 0 || k == path.Count - 1)
-                            //     tiles[p.X, p.Y].color = Color.Green;
-
+                            Point p = path[k];                            
                             tiles[p.X, p.Y].type = TileType.Road;
                         }
                     }
@@ -113,12 +109,87 @@ namespace Industry.World.Generation.Modules
         private List<(Room, Room)> GetRoomsToConnect()
         {
             RoomGraph graph = new RoomGraph();
-            graph.AddNodesAndConnectAll(cities);
-            RoomGraph minSpan = graph.MinSpanningTree(random);                     
-            List<(Room, Room)> toConnect = minSpan.ToConnectionList();
+            graph.AddRoomsAndConnectAll(cities);
+            RoomGraph minSpan = graph.MinSpanningTree(random);
 
-            return toConnect;
+            foreach(Room r in cities)
+            {
+                foreach(Room other in cities)
+                {
+                    if (r == other || minSpan.connections[r].Contains(other) )
+                        continue;
+                    
+                    double directDist = r.DistanceTo(other);
+                    double distInGraph = GetDistanceInGraph(minSpan, r, other);
+
+                    if(directDist * 1.5 < distInGraph)
+                    {
+                        minSpan.AddConnectionBothWays(r, other);                        
+                    }
+                }
+            }
+
+            return minSpan.ToConnectionList();
         }
-        
+
+        private double GetDistanceInGraph(RoomGraph graph, Room from, Room to)
+        {
+            //use Astar. My generic astar implementation is only suitable for 2D arrays at the moment, so reimplement it here...
+            Dictionary<Room, Room> prev = new Dictionary<Room, Room>(graph.Count);
+            Dictionary<Room, double> cost = new Dictionary<Room, double>(graph.Count);
+            bool targetReached = false;
+
+            foreach(Room r in graph.rooms)
+            {
+                prev.Add(r, null);
+                cost.Add(r, double.MaxValue);
+            }
+
+            var closedList = new HashSet<Room>();
+            var openList = new Barely.Util.Priority_Queue.SimplePriorityQueue<Room>();
+            openList.Enqueue(from, 0);
+            cost[from] = 0;
+            prev[from] = null;
+
+            while(openList.Count > 0)
+            {
+                Room currentRoom = openList.Dequeue();
+
+                if (currentRoom == to)
+                {
+                    targetReached = true;
+                    break;
+                }
+             
+                closedList.Add(currentRoom);
+                foreach (Room n in graph.connections[currentRoom])
+                {
+                    if (closedList.Contains(n))
+                        continue;
+
+                    double tenativeCost = cost[currentRoom] + currentRoom.DistanceTo(n);
+
+                    bool contains = openList.Contains(n);
+                    if (contains && tenativeCost >= cost[n])
+                        continue;
+
+                    prev[n] = currentRoom;
+                    cost[n] = tenativeCost;
+
+                    tenativeCost += n.DistanceTo(to);
+
+                    if (contains)
+                        openList.UpdatePriority(n, tenativeCost);
+                    else
+                        openList.Enqueue(n, tenativeCost);
+
+                }
+                
+            }
+
+            Debug.Assert(cost[to] < double.MaxValue);
+            return cost[to];
+        }
+
     }
 }
