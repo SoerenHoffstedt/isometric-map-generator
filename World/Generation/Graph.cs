@@ -74,7 +74,7 @@ namespace Industry.World.Generation
         /// </summary>
         /// <param name="random">Random object for getting random starter element. As parameter to keep random seed predictability.</param>
         /// <returns>The minimum spanning tree.</returns>
-        public RoomGraph MinSpanningTree(Random random)
+        public RoomGraph MinSpanningTree(Random random, Func<Room, Room, double> DistFunc)
         {
             if (Count == 0)
                 return new RoomGraph();
@@ -101,7 +101,7 @@ namespace Industry.World.Generation
                 {
                     if (queue.Contains(other))  //could keep track of this separatly (HashSet) because this is linear. 
                     {
-                        double dist = r.DistanceToSquared(other);
+                        double dist = DistFunc(r, other);
                         if(dist < distanceToSpannTree[other])
                         {
                             parentRoom[other] = r;

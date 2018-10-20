@@ -110,7 +110,7 @@ namespace Industry.World.Generation.Modules
         {
             RoomGraph graph = new RoomGraph();
             graph.AddRoomsAndConnectAll(cities);
-            RoomGraph minSpan = graph.MinSpanningTree(random);
+            RoomGraph minSpan = graph.MinSpanningTree(random, (r1, r2) => r1.DistanceToSquared(r2));
 
             foreach(Room r in cities)
             {
