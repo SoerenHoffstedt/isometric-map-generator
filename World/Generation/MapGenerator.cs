@@ -40,7 +40,7 @@ namespace Industry.World.Generation
             
             modules.Add(new TerrainModule());            
             if(param.hasRivers)
-                modules.Add(new RiverModule(waters));
+                modules.Add(new RiverModule(waters, random));
             if(param.hasCities)
                 modules.Add(new CityModule(cities, random));
             if(param.hasCityConnections)
