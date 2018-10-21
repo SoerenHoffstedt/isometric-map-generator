@@ -12,6 +12,8 @@ namespace Industry.World.Generation.Modules
     {
         List<Room> waters;
         Random random;
+        Dictionary<(Room, Room), List<Point>> pathCache = new Dictionary<(Room, Room), List<Point>>();
+        private const int SMOOTHING_PASSES = 2;
 
         public RiverModule(List<Room> waters, Random random)
         {
@@ -39,126 +41,134 @@ namespace Industry.World.Generation.Modules
             waters = w.ConvertAll((hs) => new Room(hs));
 
             if (waters.Count < 2)
-                return;
-            
+                return;            
+
             List<HashSet<Room>> connectableRooms = new List<HashSet<Room>>();
 
-            //check every lake against every other lake and if they are connectable (a path between them where every tile is the same height as the lakes) 
-            // put them into a hashset together. If there already is a list with one of the lakes put the other lake into that list, 
-            // thereby finding sets of connectable lakes.
-            for(int i = 0; i < waters.Count; ++i)
-            {
-                Room a = waters[i];
-                for (int j = i + 1; j < waters.Count; ++j)
-                {
-                    Room b = waters[j];
-                    List<Point> path = GenHelper.AStar(tiles, a.MiddlePoint, b.MiddlePoint, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => 1f, false);
-                    
-                    if(path != null) //means a and b are connectible
-                    {
-                        bool inserted = false;
-                        foreach(HashSet<Room> roomSet in connectableRooms)
-                        {
-                            if (roomSet.Contains(a))      
-                                roomSet.Add(b);
-                            else if (roomSet.Contains(b))                            
-                                roomSet.Add(a);
-                            else                            
-                                continue;
-                            
-                            inserted = true;
-                            break;
-                        }
-                        if (!inserted)
-                        {
-                            HashSet<Room> newSet = new HashSet<Room>();
-                            newSet.Add(a);
-                            newSet.Add(b);
-                            connectableRooms.Add(newSet);
-                        }
-                    }
+            Stopwatch sw1 = new Stopwatch();
+            sw1.Start();
 
+            List<HashSet<Point>> groundFills = GenHelper.FloodFill(tiles, (t) => t.GetMaxHeight() == param.minHeight);
+
+            foreach(HashSet<Point> points in groundFills)
+            {
+                HashSet<Room> rooms = new HashSet<Room>();
+                foreach(Room r in waters)
+                {
+                    if(r.Tiles.Any((p) => points.Contains(p)))                    
+                        rooms.Add(r);                    
                 }
+                connectableRooms.Add(rooms);
             }
+
+            sw1.Stop();
+            Debug.WriteLine($"Length of finding to connecting rooms: {sw1.ElapsedMilliseconds}");
+
+            Stopwatch sw2 = new Stopwatch();
+            sw2.Start();
 
             foreach (HashSet<Room> roomSet in connectableRooms)
             {
-                RoomGraph graph = new RoomGraph();
-                graph.AddRoomsAndConnectAll(waters);
+                RoomGraph graph = new RoomGraph();                
+                graph.AddRoomsAndConnectAll(roomSet.ToList());
                 var minSpanTree = graph.MinSpanningTree(random, (r1, r2) => {
-                List<Point> path = GenHelper.AStar(tiles, r1.MiddlePoint, r2.MiddlePoint, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => 1f, false);
-                    double dist = 0.0;
-                    if (path == null)
-                        return double.MaxValue;
-                    for (int i = 0; i < path.Count - 1; i++)
+                    List<Point> path = null;
+                    if (pathCache.ContainsKey((r1, r2)))
+                        path = pathCache[(r1, r2)];
+                    else if (pathCache.ContainsKey((r2, r1)))
+                        path = pathCache[(r2, r1)];
+                    else
                     {
-                        dist += (path[i].ToVector2() - path[i + 1].ToVector2()).Length();
+                        path = GenHelper.AStar(tiles, r1.MiddlePoint, r2.MiddlePoint, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => t.type == TileType.Water ? 1f : 5f, false);
+                        if (path == null)                        
+                            return int.MaxValue;
+                        else
+                            pathCache.Add((r1, r2), path);
                     }
-                    return dist;
+                    
+                    return path.Count;
                 }).ToConnectionList();
-                
-                foreach((Room r1, Room r2) in minSpanTree){
-                    ConnectWaters(param, tiles, r1, r2);
-                }
 
+                foreach((Room r1, Room r2) in minSpanTree){
+                    ConnectWaters(param, tiles, r1, r2);                    
+                }
             }
-            
+            sw2.Stop();
+            Debug.WriteLine($"Connecting all the rooms: {sw2.ElapsedMilliseconds}");
+
         }
 
         private void SmoothWaterTiles(GeneratorParameter param, Tile[,] tiles)
         {
-            int smoothed = 0;
-            for (int x = 0; x < param.size.X; x++)
+            for (int i = 0; i < SMOOTHING_PASSES; i++)
             {
-                for (int y = 0; y < param.size.Y; y++)
+                for (int x = 0; x < param.size.X; x++)
                 {
-                    if (tiles[x, y].type != TileType.Water && tiles[x, y].AllHeightsAreSame())
+                    for (int y = 0; y < param.size.Y; y++)
                     {
-                        int waterNeighbours = 0;
-                        foreach (Point n in GenHelper.IterateNeighboursEightDir(x, y))
+                        if (tiles[x, y].AllHeightsAreSame())
                         {
-                            if (tiles[n.X, n.Y].type == TileType.Water)
+                            int waterNeighbours = 0;
+                            foreach (Point n in GenHelper.IterateNeighboursEightDir(x, y))
                             {
-                                waterNeighbours++;
+                                if (tiles[n.X, n.Y].type == TileType.Water)
+                                {
+                                    waterNeighbours++;
+                                }
                             }
-                        }
-                        if (waterNeighbours >= 5)
-                        {
-                            tiles[x, y].type = TileType.Water;
-                            smoothed++;
-                        }
+                            if (waterNeighbours >= 5)
+                            {
+                                tiles[x, y].type = TileType.Water;                                
+                            } else if(waterNeighbours <= 2)
+                            {
+                                tiles[x, y].type = TileType.Nothing;
+                            }
 
+                        }
                     }
                 }
-            }
+            }            
         }
 
-        const float DIST_PER_POINT = 3f;
-        const float MAX_DIST = 20;
+        const int DIST_PER_POINT = 1;
+        const float MAX_DIST = 25;
 
         private void ConnectWaters(GeneratorParameter param, Tile[,]tiles, Room a, Room b)
         {            
             Point source = a.MiddlePoint;
-            Point target = b.MiddlePoint;
-
-            Vector2 direction = (target.ToVector2() - source.ToVector2());
-            float distance = direction.Length();
-            direction.Normalize();            
-
-            int numPoints = (int)(distance / DIST_PER_POINT + 0.5);
+            Point target = b.MiddlePoint;            
             int height = param.minHeight;
-            List<Point> points = new List<Point>(numPoints);
+            List<Point> directPath = null;
 
-            while(!b.Tiles.Contains(source))
-            {                
-                points.Add(source);
-                source = source + (direction * DIST_PER_POINT).ToPoint();
+            if (pathCache.ContainsKey((a,b)))
+                directPath = pathCache[(a,b)];
+            else if (pathCache.ContainsKey((b, a)))
+                directPath = pathCache[(b, a)];
 
-                if(GenHelper.IsInRange(source) && tiles[source.X, source.Y].type == TileType.Water)
-                {                    
+            int from = 0; //find the index of the last tile in the path, that is inside Room a
+            while(from < directPath.Count - 1 && a.Tiles.Contains(directPath[from + 1]))
+            {
+                from += 1;
+            }
+            int to = directPath.Count - 1; //find the index of the last tile in the path, that is inside Room b
+            while (to > 0 && b.Tiles.Contains(directPath[to - 1]) )
+            {
+                to -= 1;
+            }
+
+            List<Point> points = new List<Point>(directPath.Count / DIST_PER_POINT + 1);
+
+            for (int i = from; i <= to; i += DIST_PER_POINT)
+            {
+                Point p = directPath[i];                                                                
+                if(tiles[p.X, p.Y].type == TileType.Water)
+                {
+                    points.Add(p);                    
                     continue;
                 }
 
+                Vector2 direction = (target.ToVector2() - p.ToVector2());
+                direction.Normalize();
                 Vector2 dirLeft = new Vector2(-direction.Y, direction.X);
                 Vector2 dirRight = new Vector2(direction.Y, -direction.X);                
 
@@ -170,29 +180,29 @@ namespace Industry.World.Generation.Modules
 
                 int count = 1;
 
-                Func<Point, Vector2, int, Point> GetPoint = (Point p, Vector2 dir, int c) => {
-                    return p + new Point((int)Math.Round(dir.X * c), (int)Math.Round(dir.Y * c));
+                Func<Point, Vector2, int, Point> GetPoint = (Point point, Vector2 dir, int c) => {
+                    return point + new Point((int)Math.Round(dir.X * c), (int)Math.Round(dir.Y * c));
                 };
 
                 while (!foundRight || !foundLeft)
                 {
                     if (!foundRight)
                     {
-                        Point r = GetPoint(source, dirRight, count); //coord + new Point((int)Math.Round(dirRight.X * count), (int)Math.Round(dirRight.Y * count));
-                        if (!GenHelper.IsInRange(r) || tiles[r.X, r.Y].GetMaxHeight() > height) //|| tiles[r.X, r.Y].type == TileType.Water)
+                        Point r = GetPoint(p, dirRight, count);
+                        if (!GenHelper.IsInRange(r) || tiles[r.X, r.Y].GetMaxHeight() > height)
                         {
                             foundRight = true;
-                            distRight = (source.ToVector2() - r.ToVector2()).Length();
+                            distRight = (p.ToVector2() - r.ToVector2()).Length();
                         }
                     }
 
                     if (!foundLeft)
                     {
-                        Point l = GetPoint(source, dirLeft, count); //coord + new Point((int)Math.Round(dirLeft.X * count), (int)Math.Round(dirLeft.Y * count));
-                        if (!GenHelper.IsInRange(l) || tiles[l.X, l.Y].GetMaxHeight() > height) //|| tiles[l.X, l.Y].type == TileType.Water)
+                        Point l = GetPoint(p, dirLeft, count);
+                        if (!GenHelper.IsInRange(l) || tiles[l.X, l.Y].GetMaxHeight() > height)
                         {
                             foundLeft = true;
-                            distLeft = (source.ToVector2() - l.ToVector2()).Length();
+                            distLeft = (p.ToVector2() - l.ToVector2()).Length();
                         }
                     }
 
@@ -220,21 +230,27 @@ namespace Industry.World.Generation.Modules
                 if(distLeft > distRight)
                 {
                     float dist = (distLeft - distTotalHalf) * stretch;
-                    newPoint = source + (dirLeft * dist).ToPoint();
+                    newPoint = p + (dirLeft * dist).ToPoint();
                 } else
                 {
                     float dist = (distRight - distTotalHalf) *stretch;
-                    newPoint = source + (dirRight * dist).ToPoint();
+                    newPoint = p + (dirRight * dist).ToPoint();
                 }
 
-                source = newPoint;
-
-                direction = (target.ToVector2() - source.ToVector2());
-                direction.Normalize();
+                p = newPoint;
+                points.Add(p);
             }
+            if(from - 1 >= 0)
+                points[0] = directPath[from - 1];
 
-            points.Add(source);
-
+            if (!b.Tiles.Contains(points.Last()))
+            {
+                if(to + 1 < directPath.Count)
+                    points.Add(directPath[to + 1]);
+                else
+                    points.Add(directPath[to]);
+            }
+                                
             //width of river only in steps of two, because the width would look different for straight or angled parts of the river
             int width = random.Next(1, 5) * 2; 
                                     
