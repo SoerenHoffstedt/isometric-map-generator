@@ -21,7 +21,7 @@ namespace Industry.World.Generation.Modules
                 for (int y = 0; y < param.size.Y; y++)
                 {
                     Tile t = tiles[x, y];
-                    if (!automata[x, y] && t.type == TileType.Nothing && t.AllHeightsAreSame())
+                    if (!automata[x, y] && t.type == TileType.Nothing)
                     {
                         t.type = TileType.Forest;
                         t.onTopIndex = param.tileset.GetRandomIndex(TileType.Forest);
