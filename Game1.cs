@@ -34,6 +34,8 @@ namespace Industry
             IsMouseVisible = true;
             graphics.PreferredBackBufferWidth  = Config.Resolution.X;
             graphics.PreferredBackBufferHeight = Config.Resolution.Y;
+            graphics.IsFullScreen = false;            
+            Window.IsBorderless = false;
             graphics.SynchronizeWithVerticalRetrace = false;
             IsFixedTimeStep = false;
             graphics.ApplyChanges();

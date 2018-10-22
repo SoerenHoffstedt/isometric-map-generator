@@ -13,6 +13,25 @@ namespace Industry.World.Generation
     {
         public static Point Size;
 
+        public static Tile[,] tiles = null;
+
+        public static IEnumerable<Point> IterateNeighboursFourDirRoads(int x, int y)
+        {
+            int slope = 0;
+            if (IsInRange(x,y))
+                slope = tiles[x, y].GetSlopeIndex();
+            
+
+            if (IsInRange(x - 1, y) && slope != 3 && slope != 12)
+                yield return new Point(x - 1, y);
+            if (IsInRange(x + 1, y) && slope != 3 && slope != 12)
+                yield return new Point(x + 1, y);
+            if (IsInRange(x, y - 1) && slope != 6 && slope != 9)
+                yield return new Point(x, y - 1);
+            if (IsInRange(x, y + 1) && slope != 6 && slope != 9)
+                yield return new Point(x, y + 1);
+        }
+
         public static IEnumerable<Point> IterateNeighboursFourDir(int x, int y)
         {
             if (IsInRange(x - 1, y))
@@ -114,7 +133,7 @@ namespace Industry.World.Generation
             return bla.ConvertAll((set) => { return new Room(set); });
         }
 
-        public static List<Point> AStar<T>(T[,] map, Point source, Point target, Func<T, bool> IsWalkable, Func<T, float> WalkCost, bool reversePath = true) where T : class
+        public static List<Point> AStar<T>(T[,] map, Point source, Point target, Func<T, bool> IsWalkable, Func<T, float> WalkCost, Func<int,int,IEnumerable<Point>> IterateNeighours, bool reversePath = true) where T : class
         {
             Dictionary<Point, Point> prev = new Dictionary<Point, Point>();
             Dictionary<Point, float> cost = new Dictionary<Point, float>();
@@ -153,7 +172,7 @@ namespace Industry.World.Generation
                 if (IsWalkable(map[currentNode.X, currentNode.Y]))
                 {
                     closedList.Add(currentNode);
-                    foreach (Point n in IterateNeighboursFourDir(currentNode.X, currentNode.Y))
+                    foreach (Point n in IterateNeighours(currentNode.X, currentNode.Y))
                     {
                         if (closedList.Contains(n))
                             continue;

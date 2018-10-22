@@ -79,7 +79,7 @@ namespace Industry.World.Generation.Modules
                         path = pathCache[(r2, r1)];
                     else
                     {
-                        path = GenHelper.AStar(tiles, r1.MiddlePoint, r2.MiddlePoint, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => t.type == TileType.Water ? 1f : 5f, false);
+                        path = GenHelper.AStar(tiles, r1.MiddlePoint, r2.MiddlePoint, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => t.type == TileType.Water ? 1f : 5f, GenHelper.IterateNeighboursFourDir, false);
                         if (path == null)                        
                             return int.MaxValue;
                         else
@@ -260,7 +260,7 @@ namespace Industry.World.Generation.Modules
                 Point p2 = points[i + 1];
                 //tiles[p1.X, p1.Y].color = Color.HotPink;
                 //tiles[p2.X, p2.Y].color = Color.HotPink;
-                List<Point> path = GenHelper.AStar(tiles, p1, p2, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => 1f, false); 
+                List<Point> path = GenHelper.AStar(tiles, p1, p2, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => 1f, GenHelper.IterateNeighboursFourDir, false); 
 
                 if (path != null)
                 {

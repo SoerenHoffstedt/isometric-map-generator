@@ -29,12 +29,13 @@ namespace Industry.World.Generation
 
         public Tile[,] Generate()
         {
-            City.cityID = 1;            
-            GenHelper.Size = param.size;
+            City.cityID = 1;                       
             this.tileset = param.tileset;
             random = new Random(param.randomSeed);
             Debug.WriteLine($"{param.randomSeed}");
             tiles = new Tile[param.size.X, param.size.Y];
+            GenHelper.Size = param.size;
+            GenHelper.tiles = tiles;
             cities.Clear();
             waters.Clear();           
             
@@ -54,7 +55,9 @@ namespace Industry.World.Generation
                                 
             CalculateCorrectRoadTile();
 
-            SetRoomsToTile();          
+            SetRoomsToTile();
+
+            GenHelper.tiles = null;
 
             return tiles;
         }
@@ -111,8 +114,7 @@ namespace Industry.World.Generation
                                 slope == 9  && roadDir == 10 ||
                                 slope == 3  && roadDir == 5  ))
                         {
-                            t.type = TileType.Forest;
-                            Debug.WriteLine($"Road piece not existing. Slope: {slope}, roadDir: {roadDir}");
+                            t.type = TileType.Nothing;
                             continue;
                         }                                           
                     }

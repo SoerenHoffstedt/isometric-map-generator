@@ -13,7 +13,7 @@
 
 	<string id="forestSize">Forest Size</string>
 	<string id="hasWater">Water</string>
-	<string id="hasRivers">Rivers</string>
+	<string id="hasRivers">Rivers (can take long)</string>
 	<string id="hasCities">Cities</string>	
 	<string id="hasCityConnections">Connect Cities</string>
 	<string id="mapWidth">Map Width</string>

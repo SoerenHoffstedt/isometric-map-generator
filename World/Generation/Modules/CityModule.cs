@@ -67,8 +67,24 @@ namespace Industry.World.Generation.Modules
             int blockCount = 0;
             Point origin = start;
 
+            //when start tile is not flat, search around it for a flat one
+            if (!GetTile(origin).AllHeightsAreSame())
+            {
+                for (int x = -2; x <= 2 && origin == start; x++)
+                {
+                    for (int y = -2; y < 2; y++)
+                    {
+                        if(IsInRange(x,y) && tiles[x, y].AllHeightsAreSame())
+                        {
+                            origin = new Point(x, y);
+                            break;
+                        }
+                            
+                    }
+                }
+            }
+
             Queue<Intersection> intersections = new Queue<Intersection>(64);
-            //todo: make sure origin can have a road.
             intersections.Enqueue(new Intersection(origin, true, true, true, true));
 
             const int ROAD_STEPS_MIN = 3;
@@ -191,13 +207,17 @@ namespace Industry.World.Generation.Modules
                             }
                         }
 
+                        if (i == steps - 1 && !GetTile(p).AllHeightsAreSame())
+                        {
+                            continue;
+                        }
                         room.Add(p);
                         tiles[p.X, p.Y].type = TileType.Road;
                         blockCount++;
 
                     }
 
-                    if (!IsInRange(p))
+                    if (!IsInRange(p) || !GetTile(p).AllHeightsAreSame())
                         continue;
 
                     double dirProb = 0.75;
@@ -529,16 +549,46 @@ namespace Industry.World.Generation.Modules
         public Intersection(Point pos, double[] dirProbs, Random random)
         {
             this.pos = pos;
+            Debug.Assert(GenHelper.tiles[pos.X, pos.Y].GetSlopeIndex() == 0);
             directions = 0;
-            if (random.NextDouble() < dirProbs[0])
+            if (random.NextDouble() < dirProbs[0] && CanMove(Direction.Up))
                 directions += 1;
-            if (random.NextDouble() < dirProbs[1])
+            if (random.NextDouble() < dirProbs[1] && CanMove(Direction.Right))
                 directions += 2;
-            if (random.NextDouble() < dirProbs[2])
+            if (random.NextDouble() < dirProbs[2] && CanMove(Direction.Down))
                 directions += 4;
-            if (random.NextDouble() < dirProbs[3])
+            if (random.NextDouble() < dirProbs[3] && CanMove(Direction.Left))
                 directions += 8;
 
+        }
+
+        bool CanMove(Direction dir)
+        {
+            int slope = 0;
+            switch (dir)
+            {
+                case Direction.Up:
+                    if (!IsInRange(pos.X, pos.Y - 1))
+                        return false;
+                    slope = GenHelper.tiles[pos.X, pos.Y - 1].GetSlopeIndex();
+                    return slope == 0 || slope == 12;                    
+                case Direction.Right:
+                    if (!IsInRange(pos.X + 1, pos.Y))
+                        return false;
+                    slope = GenHelper.tiles[pos.X + 1, pos.Y].GetSlopeIndex();
+                    return slope == 0 || slope == 9;
+                case Direction.Down:
+                    if (!IsInRange(pos.X, pos.Y + 1))
+                        return false;
+                    slope = GenHelper.tiles[pos.X, pos.Y + 1].GetSlopeIndex();
+                    return slope == 0 || slope == 3;
+                case Direction.Left:
+                    if (!IsInRange(pos.X - 1, pos.Y))
+                        return false;
+                    slope = GenHelper.tiles[pos.X - 1, pos.Y].GetSlopeIndex();
+                    return slope == 0 || slope == 6;
+            }
+            return true;
         }
 
         public bool HasDirection(Direction dir)

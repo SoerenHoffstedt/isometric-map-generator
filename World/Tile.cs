@@ -124,8 +124,6 @@ namespace Industry.World
 
     }
 
-    
-    
     public enum SlopeIndex
     {        
         North   = 1,

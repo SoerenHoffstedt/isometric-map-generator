@@ -30,8 +30,7 @@ namespace Industry.Scenes
         private Tileset tileset;
         private SpriteFont cityFont;
 
-        private GeneratorParameter mapParameter;
-        private bool useOldSeed = false;
+        private GeneratorParameter mapParameter;        
         private List<City> cities;
         private bool hideUI = false;
         private bool keepCurrentSeed = false;
@@ -62,16 +61,16 @@ namespace Industry.Scenes
                 minHeight = 10,
                 maxHeight = 20,
                 waterMinDiff = 2,
-                forestSize = 0f,
-                citiesNumber = 0f,
+                forestSize = 1f,
+                citiesNumber = 1f,
                 citySize = 5f,
                 citySizeRandomOffset = 4.5f,
                 hasCities = true,
                 hasWater = true,
-                hasCityConnections = false,
+                hasCityConnections = true,
                 hasRivers = false,
                 tileset = tileset,
-                randomSeed = 123456789
+                randomSeed = 189370585 //1621216522 //123456789
             };
 
             cities = new List<City>(64);
@@ -264,8 +263,9 @@ namespace Industry.Scenes
             {
                 tokenSource.Cancel(true);                
                 mapGenButton.GeneratingStoped();
-                cancelButton.GeneratingStoped();
+                cancelButton.GeneratingStoped();                
                 mapGenTask = null;
+                tokenSource = null;
             }
         }
 
@@ -289,6 +289,7 @@ namespace Industry.Scenes
                 renderer.ResetMap(map);
 
             SetCameraBounds();
+            CancelMapGeneration();
         }
 
         private void UpdateMapGeneration(double deltaTime)

@@ -86,8 +86,9 @@ namespace Industry.World.Generation.Modules
                         else
                             return 3f;
                     };
-
-                    List<Point> path = GenHelper.AStar(tiles, start, target, IsWalkable, Cost);
+                    
+                    List<Point> path = GenHelper.AStar(tiles, start, target, IsWalkable, Cost, GenHelper.IterateNeighboursFourDirRoads);
+                    
                     if (path != null && !(path.Count == 1 && path[0] == new Point(-1, -1)))
                     {
                         for (int k = 0; k < path.Count; k++)
@@ -102,7 +103,6 @@ namespace Industry.World.Generation.Modules
                     }
 
                 }
-
             }            
         }
 
