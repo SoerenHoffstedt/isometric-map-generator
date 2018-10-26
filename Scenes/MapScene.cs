@@ -115,6 +115,8 @@ namespace Industry.Scenes
             if (handled)
             {
                 cameraTakesInput = false;
+                if(isDragging && !Input.GetRightMousePressed() && !Input.GetMiddleMousePressed())
+                    isDragging = false;
                 return;
             }
 
@@ -181,12 +183,22 @@ namespace Industry.Scenes
                 if (Input.GetKeyPressed(Keys.W) || Input.GetKeyPressed(Keys.Up))
                     camMove.Y -= camSpeed * dt;
 
-                if (Input.GetMiddleMouseDown())
-                    isDragging = true;
+                if (!isDragging)
+                {
+                    if (Input.GetRightMouseDown())
+                        isDragging = true;
+                    else if (Input.GetMiddleMouseDown())
+                        isDragging = true;
+                }
 
-                if (Input.GetMiddleMouseUp())
-                    isDragging = false;
-
+                if (isDragging)
+                {
+                    if (Input.GetRightMouseUp())
+                        isDragging = false;
+                    else if (Input.GetMiddleMouseUp())
+                        isDragging = false;
+                }
+                
                 //Drag axis invertable via Settings, -> *(-1) 
                 if (isDragging)
                     camMove -= Input.GetMousePositionDelta().ToVector2() / camera.zoom;
