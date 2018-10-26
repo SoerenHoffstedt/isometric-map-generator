@@ -17,7 +17,7 @@ namespace Industry.World
         public TileType type;
         public int onTopIndex;        
         public Color color = Color.White;
-
+        public int yOffset = 0;
         public Room partOfRoom = null;
 
         public Store store;

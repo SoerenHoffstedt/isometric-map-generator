@@ -59,8 +59,30 @@ namespace Industry.World
 
         public void Update(float deltaTime)
         {            
-            tweener.Update(deltaTime);                             
-        }        
+            tweener.Update(deltaTime);
+            UpdateWaterAnim(deltaTime);
+        }
+
+        double waveTimeTotal = 0.0;
+        private void UpdateWaterAnim(float deltaTime)
+        {
+            waveTimeTotal += deltaTime;
+            Vector2 dir = new Vector2(0.85f, 0.732f);
+            for (int x = 0; x < mapSize.X; x++)
+            {
+                for (int y = 0; y < mapSize.Y; y++)
+                {
+                    Tile t = tiles[x, y];
+                    if(t.type == TileType.Water)
+                    {                        
+                        Vector2 uv = new Vector2((float)x / mapSize.X, (float)y / mapSize.Y);
+                        float theta = Vector2.Dot(uv, dir);
+                        double val = (Math.Sin(waveTimeTotal * theta * 3.0) ) * 3.0;
+                        t.yOffset = (int)val + 1;
+                    }
+                }
+            }
+        }
 
         public void GenerateMap(GeneratorParameter param)
         {            

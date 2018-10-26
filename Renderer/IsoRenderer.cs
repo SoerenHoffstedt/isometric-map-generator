@@ -150,6 +150,7 @@ namespace Industry.Renderer
                     int slope = t.GetSlopeIndex();
                     int height = t.GetMaxHeight();
                     Point pos = GetPositionByCoords(x, y);
+                    pos.Y += t.yOffset;
 
                     if (height == 0)
                         continue;
