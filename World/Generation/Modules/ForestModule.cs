@@ -9,12 +9,18 @@ namespace Industry.World.Generation.Modules
 {
     public class ForestModule : IGeneratorModule
     {
+        private const int BLOCKING_PERC_MIN = 48;
+        private const int BLOCKING_PERC_MAX = 55;
+        private const int SMOOTH_ITERATIONS = 3;
+
         public void Apply(GeneratorParameter param, Tile[,] tiles)
         {
             if (param.forestSize <= 0f)
                 return;
-
-            bool[,] automata = CellularAutomata.Generate(param.size, 4, 50, true, param.randomSeed);
+            
+            float paramValue = 1 - param.forestSize;
+            int perc = (int)(BLOCKING_PERC_MIN + (BLOCKING_PERC_MAX - BLOCKING_PERC_MIN) * paramValue);
+            bool[,] automata = CellularAutomata.Generate(param.size, SMOOTH_ITERATIONS, perc, true, param.randomSeed);
 
             for (int x = 0; x < param.size.X; x++)
             {
