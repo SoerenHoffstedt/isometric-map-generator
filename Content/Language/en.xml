@@ -16,15 +16,15 @@
 	<string id="hasRivers">Rivers (can take long)</string>
 	<string id="hasCities">Cities</string>	
 	<string id="hasCityConnections">Connect Cities</string>
-	<string id="mapWidth">Map Width</string>
-	<string id="mapHeight">Map Height</string>
+	<string id="mapWidth">Map Size X</string>
+	<string id="mapHeight">Map Size Y</string>
 	<string id="cityNum">Amount of Cities</string>
 	
 	<string id="minHeight">Min. Terrain Height</string>
 	<string id="maxHeight">Max. Terrain Height</string>
-	<string id="waterDiff">Water Offset</string>
+	<string id="waterDiff">Water or Plains</string>
 
-	<string id="exit">I had enough!</string>
+	<string id="exit">Quit (thanks for playing)</string>
 
 	<string id="currSeed">Seed</string>
 	<string id="keepCurrSeed">Keep seed</string>

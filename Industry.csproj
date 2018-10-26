@@ -10,7 +10,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Industry</RootNamespace>
-    <AssemblyName>Industry</AssemblyName>
+    <AssemblyName>IsometricMapGenerator</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>

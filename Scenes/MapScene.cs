@@ -1,6 +1,5 @@
 ﻿using Barely.SceneManagement;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -56,21 +55,21 @@ namespace Industry.Scenes
 
             mapParameter = new GeneratorParameter()
             {
-                size = new Point(128, 128),
+                size = new Point(64, 64),
                 baseHeight = 1,
-                minHeight = 10,
-                maxHeight = 20,
-                waterMinDiff = 2,
-                forestSize = 1f,
+                minHeight = 8,
+                maxHeight = 16,
+                waterMinDiff = 4,
+                forestSize = 0.5f,
                 citiesNumber = 1f,
-                citySize = 5f,
-                citySizeRandomOffset = 4.5f,
+                citySize = 7.5f,
+                citySizeRandomOffset = 6.5f,
                 hasCities = true,
                 hasWater = true,
                 hasCityConnections = true,
                 hasRivers = false,
                 tileset = tileset,
-                randomSeed = 189370585 //1621216522 //123456789
+                randomSeed = 1571703035 //123456789 //189370585 //1621216522 //123456789 //1571703035 
             };
 
             cities = new List<City>(64);
@@ -199,7 +198,6 @@ namespace Industry.Scenes
                         isDragging = false;
                 }
                 
-                //Drag axis invertable via Settings, -> *(-1) 
                 if (isDragging)
                     camMove -= Input.GetMousePositionDelta().ToVector2() / camera.zoom;
             }
@@ -396,11 +394,11 @@ namespace Industry.Scenes
 
             KeyValueText maxHeightDesc = new KeyValueText("maxHeight", "");
             maxHeightDesc.SetValueTextUpdate(() => $"{mapParameter.maxHeight}");
-            Slider maxHeight = new Slider((val) => mapParameter.maxHeight = val, 12, 30, 1, mapParameter.maxHeight);
+            Slider maxHeight = new Slider((val) => mapParameter.maxHeight = val, 12, 20, 1, mapParameter.maxHeight);
 
             KeyValueText waterDiffDesc = new KeyValueText("waterDiff", "");
             waterDiffDesc.SetValueTextUpdate(() => $"{mapParameter.waterMinDiff}");
-            Slider waterDiff = new Slider((val) => mapParameter.waterMinDiff = val, 0, 4, 1, mapParameter.waterMinDiff);
+            Slider waterDiff = new Slider((val) => mapParameter.waterMinDiff = val, 0, 6, 1, mapParameter.waterMinDiff);
 
             Checkbox checkWater = new Checkbox("hasWater", (val) => { mapParameter.hasWater = val; }, startValue: mapParameter.hasWater);
 

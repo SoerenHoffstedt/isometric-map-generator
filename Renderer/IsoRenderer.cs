@@ -101,8 +101,8 @@ namespace Industry.Renderer
             Point p3 = MouseToWorldCoord(new Point(0, resolution.Y));
             Point p4 = MouseToWorldCoord(new Point(resolution.X, 0));
 
-            Point from = new Point(Min(p1.X, p2.X, p3.X, p4.X) - 1, Min(p1.Y, p2.Y, p3.Y, p4.Y) - 1);
-            Point to = new Point(Max(p1.X, p2.X, p3.X, p4.X) + 1, Max(p1.Y, p2.Y, p3.Y, p4.Y) + 1);
+            Point from = new Point(Min(p1.X, p2.X, p3.X, p4.X) - 2, Min(p1.Y, p2.Y, p3.Y, p4.Y) - 2);
+            Point to = new Point(Max(p1.X, p2.X, p3.X, p4.X) + 2, Max(p1.Y, p2.Y, p3.Y, p4.Y) + 2);
             from = ClampPointToMap(from);
             to = ClampPointToMap(to);
 

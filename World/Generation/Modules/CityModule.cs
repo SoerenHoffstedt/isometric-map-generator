@@ -40,6 +40,9 @@ namespace Industry.World.Generation.Modules
 
         public void Apply(GeneratorParameter param, Tile[,] tiles)
         {
+            if (param.citiesNumber == 0f)
+                return;
+
             this.param = param;
             this.tiles = tiles;
 
