@@ -297,7 +297,8 @@ namespace Industry.Scenes
             if (mapGenTask != null && mapGenTask.IsCompleted)
             {                
                 ApplyNewGeneratedMap();
-                CancelMapGeneration(); 
+                CancelMapGeneration();
+                Sounds.Play("generatingFinished");
             }
         }
         

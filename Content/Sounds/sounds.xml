@@ -10,4 +10,8 @@
 	</s>
 	-->
 
+	<s id="click" file="click"/>
+	<s id="buttonEnter" file="step"/>
+	<s id="sliderNewValue" file="step"/>
+	<s id="generatingFinished" file="ding"/>
 </sounds>

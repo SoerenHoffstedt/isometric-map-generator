@@ -3,6 +3,7 @@ GDD.md
 PizzyDeliveryTycoon.txt
 TODO.txt
 *.pyxel
+*.wav
 Content/Misc/*
 
 ## Ignore Visual Studio temporary files, build results, and

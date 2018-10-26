@@ -13,47 +13,8 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin tiles.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:tiles.png
-
-#begin tilesDef.xml
-/copy:tilesDef.xml
-
-#begin ui_atlas.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:ui_atlas.png
-
 #begin effects.xml
 /copy:effects.xml
-
-#begin Sounds/sounds.xml
-/copy:Sounds/sounds.xml
-
-#begin Language/en.xml
-/copy:Language/en.xml
-
-#begin uiLayout.xml
-/copy:uiLayout.xml
-
-#begin uiStyle.xml
-/copy:uiStyle.xml
 
 #begin Fonts/Xolonium_12.spritefont
 /importer:FontDescriptionImporter
@@ -94,4 +55,67 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Graphics/interface.png
+
+#begin Language/en.xml
+/copy:Language/en.xml
+
+#begin Sounds/click.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/click.wav
+
+#begin Sounds/ding.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ding.wav
+
+#begin Sounds/sounds.xml
+/copy:Sounds/sounds.xml
+
+#begin Sounds/step.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/step.wav
+
+#begin Sounds/unlock.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/unlock.wav
+
+#begin tiles.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:tiles.png
+
+#begin tilesDef.xml
+/copy:tilesDef.xml
+
+#begin ui_atlas.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:ui_atlas.png
+
+#begin uiLayout.xml
+/copy:uiLayout.xml
+
+#begin uiStyle.xml
+/copy:uiStyle.xml
 
