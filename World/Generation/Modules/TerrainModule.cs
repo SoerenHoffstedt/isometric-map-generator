@@ -12,6 +12,8 @@ namespace Industry.World.Generation.Modules
             Noise.PerlinInit();
             float[,] heights = Noise.GetNoise(new Point(512, 512), 5, 2, 2.5f, 0.25f, param.randomSeed);
 
+            System.Func<float, float> HeightFunc = Glide.Ease.QuadInOut;
+
             int maxHeight = param.maxHeight - 1;
             int waterHeight = param.minHeight - param.waterMinDiff;
 
@@ -19,7 +21,7 @@ namespace Industry.World.Generation.Modules
             {
                 for (int y = 0; y < param.size.Y; y++)
                 {
-                    double round = heights[x, y]; //(Math.Round(6.0 * heights[x, y]) / 6.0);
+                    double round = HeightFunc(heights[x, y]);
                     int h = (int)(round * (double)maxHeight) + param.baseHeight;
 
                     tiles[x, y] = new Tile(new Point(x, y), h, h, h, h);
