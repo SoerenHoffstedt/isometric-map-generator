@@ -14,6 +14,10 @@ namespace Industry.World.Generation.Modules
         Random random;
         Dictionary<(Room, Room), List<Point>> pathCache = new Dictionary<(Room, Room), List<Point>>();
         private const int SMOOTHING_PASSES = 2;
+        /// <summary>
+        /// if a random value is beneath this value the river will be created, else it will be skipped.
+        /// </summary>
+        private const double SKIP_RIVER_THRESHOLD = 0.75;
 
         public RiverModule(List<Room> waters, Random random)
         {
@@ -89,8 +93,9 @@ namespace Industry.World.Generation.Modules
                     return path.Count;
                 }).ToConnectionList();
 
-                foreach((Room r1, Room r2) in minSpanTree){
-                    ConnectWaters(param, tiles, r1, r2);                    
+                foreach((Room r1, Room r2) in minSpanTree) {
+                    if(random.NextDouble() < SKIP_RIVER_THRESHOLD)
+                        ConnectWaters(param, tiles, r1, r2);                    
                 }
             }
             sw2.Stop();
