@@ -50,21 +50,21 @@ namespace Industry.World.Generation.Modules
                 cities.Add(room);
                 count += 7;
 
-                double levelThree = GetPercentageOfCitizenLevel(CitizenLevel.Three);
-                double levelOne = GetPercentageOfCitizenLevel(CitizenLevel.One);
+                double levelThree = GetPercentageOfCitizenLevel(DistrictType.Business);
+                double levelOne = GetPercentageOfCitizenLevel(DistrictType.Suburb);
 
                 foreach (Point p in room.Tiles)
                 {
                     Tile t = tiles[p.X, p.Y];
 
                     double prob = random.NextDouble();
-                    CitizenLevel lvl = CitizenLevel.None;
+                    DistrictType lvl = DistrictType.None;
                     if (prob <= levelOne)
-                        lvl = CitizenLevel.One;
+                        lvl = DistrictType.Suburb;
                     else if (prob <= levelOne + levelThree)
-                        lvl = CitizenLevel.Three;
+                        lvl = DistrictType.Business;
                     else
-                        lvl = CitizenLevel.Two;
+                        lvl = DistrictType.City;
 
                     if (t.type == TileType.Nothing && t.AllHeightsAreSame())
                     {
@@ -165,13 +165,13 @@ namespace Industry.World.Generation.Modules
         const double levelThreePer = 0.5;
         const double levelOnePer = 0.2;
 
-        private double GetPercentageOfCitizenLevel(CitizenLevel level)
+        private double GetPercentageOfCitizenLevel(DistrictType level)
         {
             double pm = random.NextDouble() * levelPlusMinus * 2.0 - levelPlusMinus;
             Debug.Assert(pm <= levelPlusMinus && pm >= -levelPlusMinus);
-            if (level == CitizenLevel.One)
+            if (level == DistrictType.Suburb)
                 return levelOnePer + pm;
-            else if (level == CitizenLevel.Three)
+            else if (level == DistrictType.Business)
                 return levelThreePer + pm;
             else
                 return 0.0;

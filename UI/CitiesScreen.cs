@@ -73,9 +73,9 @@ namespace Industry.UI
         public void UpdateTexts()
         {
             name.SetText(city.Name);
-            lvl1.SetValue(city.GetNumberOfCitizensOfLevel(CitizenLevel.One).ToString());
-            lvl2.SetValue(city.GetNumberOfCitizensOfLevel(CitizenLevel.Two).ToString());
-            lvl3.SetValue(city.GetNumberOfCitizensOfLevel(CitizenLevel.Three).ToString());
+            lvl1.SetValue(city.GetNumberOfCitizensOfLevel(DistrictType.Suburb).ToString());
+            lvl2.SetValue(city.GetNumberOfCitizensOfLevel(DistrictType.City).ToString());
+            lvl3.SetValue(city.GetNumberOfCitizensOfLevel(DistrictType.Business).ToString());
         }
                         
     }

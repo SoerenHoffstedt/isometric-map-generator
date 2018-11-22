@@ -28,7 +28,7 @@ namespace Industry.Simulation
             buildingTiles = new HashSet<Point>();
             stores = new Dictionary<Point, Store>();
 
-            citizenLevels = new int[(int)CitizenLevel.Three];
+            citizenLevels = new int[(int)DistrictType.Business];
 
             foreach (Point p in room.Tiles)
             {
@@ -55,7 +55,7 @@ namespace Industry.Simulation
             buildingTiles.Remove(p);
         }
 
-        public int GetNumberOfCitizensOfLevel(CitizenLevel lvl)
+        public int GetNumberOfCitizensOfLevel(DistrictType lvl)
         {
             return citizenLevels[(int)lvl - 1];
         }

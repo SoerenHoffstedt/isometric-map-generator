@@ -156,7 +156,7 @@ namespace Industry.World
             return sprites[(int)type][index];
         }
 
-        public Sprite GetHouseSprite(CitizenLevel level, int index)
+        public Sprite GetHouseSprite(DistrictType level, int index)
         {
             return houseBuildings[(int)level][index];
         }
@@ -167,16 +167,16 @@ namespace Industry.World
             return roadSprites[new Tuple<int, int>(slope, roadDir)];
         }
 
-        public int GetRandomHouseIndex(CitizenLevel citizenLevel)
+        public int GetRandomHouseIndex(DistrictType citizenLevel)
         {
-            Debug.Assert(citizenLevel != CitizenLevel.None);
+            Debug.Assert(citizenLevel != DistrictType.None);
             Sprite[] array = houseBuildings[(int)citizenLevel];
             return random.Next(array.Length);
         }
         
-        public int GetRandomHouseIndex(CitizenLevel citizenLevel, Random r)
+        public int GetRandomHouseIndex(DistrictType citizenLevel, Random r)
         {
-            Debug.Assert(citizenLevel != CitizenLevel.None);
+            Debug.Assert(citizenLevel != DistrictType.None);
             Sprite[] array = houseBuildings[(int)citizenLevel];
             return r.Next(array.Length);
         }

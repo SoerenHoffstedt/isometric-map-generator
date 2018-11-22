@@ -22,7 +22,7 @@ namespace Industry.World
 
         public Store store;
         public City city;
-        public CitizenLevel citizenLevel { get; private set; } = CitizenLevel.None;
+        public DistrictType citizenLevel { get; private set; } = DistrictType.None;
 
 
         public Tile(Point coord, int n, int e, int s, int w)
@@ -32,7 +32,7 @@ namespace Industry.World
             type = TileType.Nothing;            
         }
 
-        public void SetCitizenLevel(CitizenLevel level)
+        public void SetCitizenLevel(DistrictType level)
         {
             this.citizenLevel = level;
         }

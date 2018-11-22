@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Industry.Simulation
 {
-    public enum CitizenLevel
+    public enum DistrictType
     {
         None,
-        One,
-        Two,
-        Three
+        Suburb,
+        City,
+        Business
     }    
 }
