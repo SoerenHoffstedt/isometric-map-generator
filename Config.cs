@@ -10,6 +10,7 @@ namespace Industry
     public static class Config
     {
         public static Point Resolution;
+        public static string Version = "0.2.1";
     }    
 
 }
