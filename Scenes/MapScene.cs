@@ -21,6 +21,10 @@ using System.Threading;
 
 namespace Industry.Scenes
 {   
+
+    /// <summary>
+    /// Scene for only watching and regenerating maps. For release as Isometric Map Generator. No gameplay in this.
+    /// </summary>
     public class MapScene : BarelyScene
     {
         private Map map;
@@ -55,21 +59,21 @@ namespace Industry.Scenes
 
             mapParameter = new GeneratorParameter()
             {
-                size = new Point(64, 64),
+                size = new Point(128, 128),
                 baseHeight = 1,
                 minHeight = 8,
                 maxHeight = 16,
                 waterMinDiff = 4,
-                forestSize = 0.5f,
-                citiesNumber = 1f,
+                forestSize = 0.0f,
+                citiesNumber = 1.0f,
                 citySize = 7.5f,
-                citySizeRandomOffset = 6.5f,
+                citySizeRandomOffset = 7.0f,
                 hasCities = true,
                 hasWater = true,
-                hasCityConnections = true,
+                hasCityConnections = false,
                 hasRivers = false,
                 tileset = tileset,
-                randomSeed = 1571703035 //123456789 //189370585 //1621216522 //123456789 //1571703035 
+                randomSeed = 615228352//1571703035 //123456789 //189370585 //1621216522 //123456789 //1571703035 
             };
 
             cities = new List<City>(64);

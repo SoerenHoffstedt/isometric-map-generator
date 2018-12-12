@@ -72,21 +72,37 @@
 	</roads>
 
 	<houses>
-		<level level="1">
-			<t type="Living" 		x="608"	y="0"	w="64" h="80"/>
-			<t type="Living"  		x="544"	y="176"	w="64" h="48"/> 
-			<t type="Commerce"  	x="736"	y="0"	w="64" h="48"/>
-		</level>
+		<district type="Suburb">
+			<t 				 		x="544"	y="0"	w="64" h="48"/> 
+			<t 				  		x="544"	y="176"	w="64" h="48"/> 
+			<t 				  		x="608"	y="176"	w="64" h="48"/> 
+			<t 				  		x="672"	y="176"	w="64" h="48"/> 
+			<t 				 		x="736"	y="176"	w="64" h="48"/> 
+			<t 						x="544"	y="240"	w="64" h="48"/> 
+			
+		</district>
 		
-		<level level="2">
-			<t type="Living" 		x="608"	y="96"	w="64" h="71"/>
-			<t type="Living" 		x="544"	y="0"	w="64" h="48"/> 
-			<t type="Commerce" 		x="672"	y="66"	w="64" h="54"/>
-		</level>
+		<district type="City">
+			<t 				 		x="608"	y="0"	w="64" h="80"/>			
+			<t  					x="608"	y="96"	w="64" h="71"/>
+			<t  					x="608"	y="240"	w="64" h="71"/>
+			<t  					x="672"	y="240"	w="64" h="71"/>
+			<t  					x="736"	y="240"	w="64" h="80"/>
+			<t 						x="544"	y="88"	w="64" h="64"/>
+		</district>
 
-		<level level="3">
-			<t type="Living" 		x="544"	y="88"	w="64" h="64"/>
-		</level>
+		<district type="Business">			
+			<t 			 			x="672"	y="66"	w="64" h="54"/>			
+			<t  					x="672"	y="120"	w="64" h="54"/>
+			<t   					x="736"	y="0"	w="64" h="48"/>
+			<t 				 		x="736"	y="66"	w="64" h="54"/>
+		</district>
+
+		<district type="Industry">
+			<t 						x="544"	y="336"	w="64" h="72"/>
+			<t 						x="608"	y="336"	w="64" h="72"/>
+			<t 						x="672"	y="336"	w="64" h="72"/>
+		</district>
 		<!-- <t type="Commerce" level="1"  	x="672"	y="0"	w="64" h="64"/> -->
 	</houses>
 	

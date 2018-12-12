@@ -122,7 +122,7 @@ namespace Industry.World.Generation
             }
 
             return toReturn;
-        }
+        }        
 
         public static List<Room> GetCellularAutomataAsRooms(int smoothIterations, int blockingTilePercentage, bool openCave)
         {

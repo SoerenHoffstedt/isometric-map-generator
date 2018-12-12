@@ -58,8 +58,8 @@ namespace Industry.Scenes
             
             tweener = new Tweener();
          
-            XmlDocument uiDefinition = new XmlDocument();
-            uiDefinition.Load("Content/uiDefinition.xml");            
+            //XmlDocument uiDefinition = new XmlDocument();
+            //uiDefinition.Load("Content/uiDefinition.xml");            
 
             uiCanvas = new Canvas(Content, Config.Resolution, GraphicsDevice);
             allAgents = new HashSet<Agent>();            
@@ -75,15 +75,15 @@ namespace Industry.Scenes
             tilesetXml.Load("Content/tilesDef.xml");
             tileset = new Tileset(tilesetXml.SelectSingleNode("tiles"), Content);
 
-            Sprite bikeNorth    = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(64, 336, 64, 48));
-            Sprite bikeWest     = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(0, 336, 64, 48));
-            Sprite bikeEast     = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(128, 336, 64, 48));
-            Sprite bikeSouth    = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(128 + 64, 336, 64, 48));
+            Sprite bikeNorth    = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(64, 384, 64, 48));
+            Sprite bikeWest     = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(0, 384, 64, 48));
+            Sprite bikeEast     = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(128, 384, 64, 48));
+            Sprite bikeSouth    = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(128 + 64, 384, 64, 48));
             bikeSprites         = new Sprite[] { bikeNorth, bikeEast, bikeSouth, bikeWest };
 
             GeneratorParameter mapParameter = new GeneratorParameter()
             {
-                size = new Point(128,128),
+                size = new Point(64, 128),
                 baseHeight = 1,
                 minHeight = 5,
                 maxHeight = 12,
@@ -92,7 +92,8 @@ namespace Industry.Scenes
                 citySize = 7.5f,
                 citySizeRandomOffset = 3.5f,
                 hasCities = true,
-                hasWater = false,
+                hasWater = false,                
+                hasCityConnections = true,
                 tileset = tileset
             };
 

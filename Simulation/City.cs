@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace Industry.Simulation
 {
@@ -28,7 +27,7 @@ namespace Industry.Simulation
             buildingTiles = new HashSet<Point>();
             stores = new Dictionary<Point, Store>();
 
-            citizenLevels = new int[(int)DistrictType.Business];
+            citizenLevels = new int[(int)DistrictType.Industry];
 
             foreach (Point p in room.Tiles)
             {
@@ -40,9 +39,7 @@ namespace Industry.Simulation
                 }
                 t.city = this;
             }
-
-            Debug.WriteLine($"City buildings: {buildingTiles.Count}");
-            Debug.WriteLine($"Citizen Levels: {citizenLevels[0]}, {citizenLevels[1]}, {citizenLevels[2]}.");
+            
             MiddlePoint = room.MiddlePoint;
             Name = $"City {cityID++}";
         }

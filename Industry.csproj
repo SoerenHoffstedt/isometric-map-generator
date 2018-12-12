@@ -57,7 +57,7 @@
     <Compile Include="Renderer\SortingLayer.cs" />
     <Compile Include="Scenes\GameScene.cs" />
     <Compile Include="Scenes\MapScene.cs" />
-    <Compile Include="Simulation\CitizenLevel.cs" />
+    <Compile Include="Simulation\DistrictType.cs" />
     <Compile Include="Simulation\City.cs" />
     <Compile Include="Simulation\SimSpeed.cs" />
     <Compile Include="Simulation\Company.cs" />

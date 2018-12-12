@@ -57,11 +57,12 @@ namespace Industry.World
             }
 
             int c = 0;
-            XmlNodeList houseLevels = def.SelectNodes("houses/level");
-            houseBuildings = new Sprite[4][];
-            for(int i = 0; i < 3; i++)
+            XmlNodeList houseLevels = def.SelectNodes("houses/district");
+            houseBuildings = new Sprite[5][];
+            for(int i = 0; i < 4; i++)
             {
                 c = 0;
+                DistrictType type = (DistrictType)Enum.Parse(typeof(DistrictType), houseLevels[i].Attributes["type"].Value);
                 tiles = houseLevels[i].SelectNodes("t");
                 houseBuildings[i + 1] = new Sprite[tiles.Count];
                 foreach (XmlNode t in tiles)
@@ -70,7 +71,7 @@ namespace Industry.World
                     int y = int.Parse(t.Attributes["y"].Value);
                     int w = int.Parse(t.Attributes["w"].Value);
                     int h = int.Parse(t.Attributes["h"].Value);
-                    houseBuildings[i + 1][c++] = new Sprite(tex, new Rectangle(x, y, w, h), Color.White);
+                    houseBuildings[(int)type][c++] = new Sprite(tex, new Rectangle(x, y, w, h), Color.White);
                 }
             }
 

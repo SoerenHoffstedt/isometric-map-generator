@@ -24,7 +24,7 @@ namespace Industry.World.Generation
             {
                 if (middlePoint == new Point(-1, -1))
                 {
-                    middlePoint = CalculateMiddlePoint();
+                    CalculateMiddlePoint();
                 }
                 return middlePoint;
             }
@@ -67,7 +67,7 @@ namespace Industry.World.Generation
                 YMax = p.Y;
         }
 
-        private Point CalculateMiddlePoint()
+        public void CalculateMiddlePoint()
         {
             Point toReturn = new Point(-1, -1);
             Vector2 diff = new Vector2(-1, -1);
@@ -80,11 +80,11 @@ namespace Industry.World.Generation
                 if (toReturn == new Point(-1, -1))
                 {
                     toReturn = p;
-                    toReturnDistance = (mid - p.ToVector2()).Length();
+                    toReturnDistance = (mid - p.ToVector2()).LengthSquared();
                 }
                 else
                 {
-                    float dist = (mid - p.ToVector2()).Length();
+                    float dist = (mid - p.ToVector2()).LengthSquared();
                     if (dist < toReturnDistance)
                     {
                         toReturn = p;
@@ -92,8 +92,7 @@ namespace Industry.World.Generation
                     }
                 }
             }
-
-            return toReturn;
+            middlePoint = toReturn;
         }
 
         public double DistanceToSquared(Room other)

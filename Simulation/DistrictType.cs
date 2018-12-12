@@ -11,6 +11,7 @@ namespace Industry.Simulation
         None,
         Suburb,
         City,
-        Business
+        Business,
+        Industry
     }    
 }

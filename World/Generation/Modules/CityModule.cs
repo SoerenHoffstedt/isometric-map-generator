@@ -51,13 +51,200 @@ namespace Industry.World.Generation.Modules
             List<CityPlacementInfo> cityPlacementInfo = GetCityPlacementInfo(numCities, ref notPlaceableCities);
 
             foreach (CityPlacementInfo info in cityPlacementInfo)
-            {
+            {                
                 Room room = GrowCity(info);
-                cities.Add(room);
+                if(room.Tiles.Count > 5)
+                    cities.Add(room);
             }
 
-            Debug.WriteLine($"Number of cities: {numCities}. Not placeable were: {notPlaceableCities}");
+            MergeOverlapingCities();
+
+            int totalSize = 0;
+            foreach(Room r in cities)
+            {
+                totalSize += r.Tiles.Count;
+            }
+            float avgSize = (float)totalSize / cities.Count;
+
+            foreach (Room cityRoom in cities)
+            {
+                MakeCityDistricts(cityRoom, avgSize);
+            }            
+
+            Debug.WriteLine($"Number of cities: {numCities}. Not placeable were: {notPlaceableCities}. Avg. city size: {avgSize}");
         }
+
+        private void MergeOverlapingCities()
+        {
+            int count = cities.Count;
+            for (int i = 0; i < cities.Count; i++)
+            {
+                for (int j = i + 1; j < cities.Count; j++)
+                {
+                    if(cities[i].Tiles.Any((p) => cities[j].Tiles.Contains(p))) // && tiles[p.X, p.Y].type == TileType.House))
+                    {
+                        cities[i].Tiles.UnionWith(cities[j].Tiles);
+                        cities.RemoveAt(j);
+                        j--;
+                        cities[i].CalculateMiddlePoint();
+                    }
+                }
+            }
+            Debug.WriteLine($"Cities merged: {count - cities.Count }");
+        }
+
+        #region City districts              
+
+        private const int TILES_PER_DISTRICT = 30;
+        private const float PROP_SUBURB = 0.40f;
+        private const float PROP_CITY = 0.30f;
+        private const float PROP_BUSINESS = 0.12f;
+        private const float PROP_INDUSTRY = 0.18f;
+
+        private void MakeCityDistricts(Room cityRoom, float avgCitySize)
+        {
+            HashSet<Point> totalVisitedPoints = new HashSet<Point>();
+            int size = cityRoom.Tiles.Count;
+
+            float totalPoints = size / TILES_PER_DISTRICT;
+
+            int suburbPoints = 0;
+            int cityPoints = 0;
+            int businessPoints = 0;
+            int industryPoints = 0;            
+
+            //set number of points in fixed proportion, sizes of districts will vary based on point placement, so this shouldn't be noticable.
+            suburbPoints = (int)(totalPoints * PROP_SUBURB);
+            cityPoints = (int)(totalPoints * PROP_CITY);
+            businessPoints = (int)(totalPoints * PROP_BUSINESS);
+            industryPoints = (int)(totalPoints * PROP_INDUSTRY);
+
+            //if city is small, but not very small and has no business/industry, put one point in.
+            if (size < avgCitySize && size > avgCitySize / 2 && industryPoints == 0 && businessPoints == 0)
+            {
+                if (random.NextDouble() < 0.5)
+                    businessPoints = 1;
+                else
+                    industryPoints = 1;                
+            }            
+
+            //due to int casting the number of points will not match totalPoints, so add suburb or city.
+            while (suburbPoints + cityPoints + businessPoints + industryPoints < (int)totalPoints)
+            {
+                if (random.NextDouble() < 0.5)
+                    suburbPoints += 1;
+                else
+                    cityPoints += 1;                
+            }
+
+            //for very small cities, just set one suburb point.
+            if (suburbPoints + cityPoints + businessPoints + industryPoints >= cityRoom.Tiles.Count)
+            {
+                suburbPoints = 1;
+                cityPoints = 0;
+                businessPoints = 0;
+                industryPoints = 0;
+            }
+
+
+            //create the fill info for all the districts, generate random point.
+            // +1 because later a city point is added in middle
+            DistrictFillInfo[] fillInfos = new DistrictFillInfo[suburbPoints + cityPoints + businessPoints + industryPoints + 1];
+
+            for(int i = 0; i < suburbPoints + cityPoints + businessPoints + industryPoints; i++)
+            {
+                DistrictType lvl = DistrictType.None;
+                if (i < suburbPoints)
+                    lvl = DistrictType.Suburb;
+                else if (i < suburbPoints + cityPoints)
+                    lvl = DistrictType.City;
+                else if (i < suburbPoints + cityPoints + businessPoints)
+                    lvl = DistrictType.Business;
+                else if (i < suburbPoints + cityPoints + businessPoints + industryPoints)
+                    lvl = DistrictType.Industry;
+            
+                int index = random.Next(cityRoom.Tiles.Count - i);
+                Point position = new Point();
+
+                int counter = 0;
+                foreach (Point p in cityRoom.Tiles)
+                {
+                    if (counter >= index && !totalVisitedPoints.Contains(p))
+                    {
+                        position = p;
+                        break;
+                    }
+                    counter++;
+                }
+                fillInfos[i] = new DistrictFillInfo(position, lvl);                
+            }
+
+            //add aditional city point in the mid point of the room, for possibility of 
+            Point mid = cityRoom.MiddlePoint;            
+            fillInfos[fillInfos.Length - 1] = new DistrictFillInfo(mid, DistrictType.City);
+
+
+            //fill the city from the points, save nearest point and distance to it per Tile
+            Dictionary<Tile, int> tileFillPairing = new Dictionary<Tile, int>(cityRoom.Tiles.Count);
+            Dictionary<Tile, float> distToCenter = new Dictionary<Tile, float>(cityRoom.Tiles.Count);
+
+            //init dictionaries
+            foreach(Point p in cityRoom.Tiles)
+            {
+                Tile t = tiles[p.X, p.Y];
+                tileFillPairing.Add(t, 0);
+                distToCenter.Add(t, float.MaxValue);
+            }
+
+            //fill city from each point and save the point to a tile if it is shorter than the points that filled before.
+            for(int i = 0; i < fillInfos.Length; i++)
+            {
+                Point start = fillInfos[i].startPoint;
+                Queue<Point> toVisit = new Queue<Point>(cityRoom.Tiles.Count);
+                HashSet<Point> visited = new HashSet<Point>();
+                toVisit.Enqueue(start);
+                visited.Add(start);
+
+                while (toVisit.Count > 0)
+                {
+                    Point p = toVisit.Dequeue();
+                    Tile t = tiles[p.X, p.Y];
+                    float dist = (p - start).ToVector2().LengthSquared();
+                    
+                    if(dist < distToCenter[t])
+                    {
+                        distToCenter[t] = dist;
+                        tileFillPairing[t] = i;
+                    }
+                    foreach(Point n in GenHelper.IterateNeighboursFourDir(p.X, p.Y))
+                    {                        
+                        if (cityRoom.Tiles.Contains(n) && !visited.Contains(n))
+                        {
+                            toVisit.Enqueue(n);
+                            visited.Add(n);
+                        }
+                    }
+                }
+
+                
+            }
+
+            //decide based on nearest point, which house is what district type.
+            foreach (Point p in cityRoom.Tiles)
+            {
+                Tile t = tiles[p.X, p.Y];
+                if(t.type == TileType.House)
+                {
+                    int index = tileFillPairing[t];
+                    DistrictType lvl = fillInfos[index].citizenLevel;
+                    t.SetCitizenLevel(lvl);
+                    t.onTopIndex = param.tileset.GetRandomHouseIndex(lvl, random);
+                }
+            }
+        
+        }
+
+        #endregion
 
         #region City Growth
 
@@ -95,8 +282,8 @@ namespace Industry.World.Generation.Modules
 
             Direction[] directions = { Direction.Up, Direction.Right, Direction.Down, Direction.Left };
 
-            double levelThree = GetPercentageOfCitizenLevel(CitizenLevel.Three);
-            double levelOne = GetPercentageOfCitizenLevel(CitizenLevel.One);
+            double levelThree = GetPercentageOfCitizenLevel(DistrictType.Business);
+            double levelOne = GetPercentageOfCitizenLevel(DistrictType.Suburb);
 
             bool leftRightIsShort = random.NextDouble() > 0.5 ? true : false;
 
@@ -190,21 +377,10 @@ namespace Industry.World.Generation.Modules
                         {
                             if (GetTile(n).IsHousePlaceable())
                             {
-                                Tile t = GetTile(n);
-
-                                double prob = random.NextDouble();
-                                CitizenLevel lvl = CitizenLevel.None;
-                                if (prob <= levelOne)
-                                    lvl = CitizenLevel.One;
-                                else if (prob <= levelOne + levelThree)
-                                    lvl = CitizenLevel.Three;
-                                else
-                                    lvl = CitizenLevel.Two;
-
+                                Tile t = GetTile(n);                         
                                 t.type = TileType.House;
-                                t.SetCitizenLevel(lvl);
-                                t.onTopIndex = param.tileset.GetRandomHouseIndex(t.citizenLevel, random);
-
+                                t.SetCitizenLevel(DistrictType.Suburb);
+                                t.onTopIndex = param.tileset.GetRandomHouseIndex(DistrictType.Suburb, random);
                                 blockCount++;
                                 room.Add(n);
                             }
@@ -261,11 +437,12 @@ namespace Industry.World.Generation.Modules
         private int GetCitySize()
         {
             Point cityChunkBase = chunkPerCity / new Point(4, 4);
-            float offset = -(float)random.NextDouble() * param.citySizeRandomOffset;// - param.citySizeRandomOffset / 2f;
+            float offset = 2 * (float)random.NextDouble() * param.citySizeRandomOffset - param.citySizeRandomOffset;
             float sizeFactor = param.citySize + offset;
             int grow = (int)((cityChunkBase.X * cityChunkBase.Y) * sizeFactor);
-            Debug.WriteLine($"Chunk Base: {cityChunkBase}. City Size: {param.citySize}. Grow size: {grow}. Size factor: {sizeFactor}");
-            return cityChunkBase.X * cityChunkBase.Y + grow;
+            int size = cityChunkBase.X * cityChunkBase.Y + grow;
+            Debug.WriteLine($"Size: {size}. Chunk Base: {cityChunkBase}. City Size: {param.citySize}. Grow size: {grow}. Size factor: {sizeFactor}");
+            return size;
         }
 
         private Point NewCityCenter(List<Point> citiesAlready)
@@ -323,13 +500,13 @@ namespace Industry.World.Generation.Modules
             return (int)((perDim.X * perDim.Y) * param.citiesNumber + 0.5f);
         }
 
-        private double GetPercentageOfCitizenLevel(CitizenLevel level)
+        private double GetPercentageOfCitizenLevel(DistrictType level)
         {
             double pm = random.NextDouble() * levelPlusMinus * 2.0 - levelPlusMinus;
             Debug.Assert(pm <= levelPlusMinus && pm >= -levelPlusMinus);
-            if (level == CitizenLevel.One)
+            if (level == DistrictType.Suburb)
                 return levelOnePer + pm;
-            else if (level == CitizenLevel.Three)
+            else if (level == DistrictType.Business)
                 return levelThreePer + pm;
             else
                 return 0.0;
@@ -385,7 +562,12 @@ namespace Industry.World.Generation.Modules
             for (int i = 0; i < numCities; i++)
             {
                 int origSize = GetCitySize();
-                int size = (int)(Math.Sqrt(origSize) * 1.4);
+                int size = (int)(Math.Sqrt(origSize) * 1.2);
+                if (size >= param.size.X)
+                    size = param.size.X - 1;
+                if (size >= param.size.Y)
+                    size = param.size.Y - 1;
+
                 int x = random.Next(0, param.size.X - size);
                 int y = random.Next(0, param.size.Y - size);
                 //size is used as num of blocks, so take the sqrt here assuming a quadratic city. take 1.5x for padding between cities:
@@ -515,11 +697,23 @@ namespace Industry.World.Generation.Modules
             return false;
         }
 
-        #endregion
+        #endregion        
 
     }
 
     #region Helping Data Structures
+
+    struct DistrictFillInfo
+    {
+        public DistrictType citizenLevel;
+        public Point startPoint;
+
+        public DistrictFillInfo(Point p, DistrictType level)
+        {
+            startPoint = p;
+            citizenLevel = level;
+        }
+    }
 
     [Flags]
     enum Direction
