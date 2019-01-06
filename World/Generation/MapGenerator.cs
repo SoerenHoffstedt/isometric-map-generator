@@ -80,10 +80,33 @@ namespace Industry.World.Generation
                 }
             }
 
-        }               
+        }
 
+        //Dictionary to indicated to which tile diagonals are supposed to be connected.
+        Dictionary<int, int> connectedTo = new Dictionary<int, int>()
+                    {
+                        { 9,  6 },
+                        { 6,  9 },
+                        { 3, 12 },
+                        { 12, 3 }
+                    };
+
+        //Dictionary translating the diagonal road directions to the special indexes of the actual diagonals.
+        Dictionary<int, int> changeTo = new Dictionary<int, int>()
+                    {
+                        { 3, 16 },
+                        { 6, 17 },
+                        { 9, 18 },
+                        {12, 19 }
+                    };
+
+
+        /// <summary>
+        /// Auto tiling the onTopIndex for the road tiles. Based on the four directional neighbour tiles calculate the roadDir index.
+        /// </summary>
         private void CalculateCorrectRoadTile()
         {
+            //classic auto tile by giving the directional neighbour roads power of two values, result is a road dir index between 0 and 15.
             for (int x = 0; x < param.size.X; x++)
             {
                 for (int y = 0; y < param.size.Y; y++)
@@ -114,15 +137,49 @@ namespace Industry.World.Generation
                                 slope == 9  && roadDir == 10 ||
                                 slope == 3  && roadDir == 5  ))
                         {
+                            //on these slopes roads can not be placed. And it should not happen in the first place.
                             t.type = TileType.Nothing;
                             continue;
                         }                                           
-                    }
-
+                    }                                     
 
                     t.onTopIndex = roadDir;
                 }
             }
+
+            //Special case: check if a curve tile could be a diagonal tile.
+            for (int x = 0; x < param.size.X; x++)
+            {
+                for (int y = 0; y < param.size.Y; y++)
+                {
+                    if (tiles[x, y].type != TileType.Road)
+                        continue;
+
+                    int roadDir = tiles[x, y].onTopIndex;
+                    
+                    if (roadDir == 9 || roadDir == 6 || roadDir == 3 || roadDir == 12)
+                    {                        
+                        int expectedConnectionRoadDir1 = connectedTo[roadDir];
+                        int expectedConnectionRoadDir2 = changeTo[expectedConnectionRoadDir1];
+                        int count = 0;
+                        foreach (Point p in GenHelper.IterateNeighboursFourDir(x, y))
+                        {
+                            if (tiles[p.X, p.Y].type == TileType.Road && 
+                                (tiles[p.X, p.Y].onTopIndex == expectedConnectionRoadDir1 || 
+                                tiles[p.X, p.Y].onTopIndex == expectedConnectionRoadDir2))
+                            {
+                                count += 1;                                
+                            }
+                        }
+                        //if one or two tiles with expected road dir, change the road.
+                        if (count == 1 || count == 2)
+                        {
+                            tiles[x,y].onTopIndex = changeTo[roadDir];
+                        }
+                    }
+                }
+            }
+
         }       
 
     }

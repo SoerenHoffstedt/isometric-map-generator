@@ -68,6 +68,15 @@
 		<t slope="12" roadDir="5"		x="64"	y="696"	w="64" h="64"/>
 		<t slope="9" roadDir="10"		x="128"	y="696"	w="64" h="64"/>
 		<t slope="3" roadDir="5"		x="192"	y="696"	w="64" h="64"/>
+	
+		<!--> Diagonals horizontal. roadDir 17=6, 18=9</-->
+		<t slope="0" roadDir="18" 		x="256"	y="504"	w="64" h="64"/>
+		<t slope="0" roadDir="17" 		x="320"	y="504"	w="64" h="64"/>
+
+		<!--> Diagonals vertical. roadDir 16=3, 19=12 </-->
+		<t slope="0" roadDir="16" 		x="256"	y="552"	w="64" h="64"/>
+		<t slope="0" roadDir="19" 		x="320"	y="552"	w="64" h="64"/>
+	
 
 	</roads>
 

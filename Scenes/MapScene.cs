@@ -328,7 +328,7 @@ namespace Industry.Scenes
             {
                 Point p = mouseOverTile.coord;
                 string city = mouseOverTile.city != null ? mouseOverTile.city.Name : "";
-                return $"({p.X},{p.Y}): " + mouseOverTile.type + "; " + city;
+                return $"({p.X},{p.Y}): {mouseOverTile.type}, {mouseOverTile.onTopIndex}; {city}";
             }
             else
                 return "";

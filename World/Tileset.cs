@@ -101,8 +101,7 @@ namespace Industry.World
             }
 
             tiles = def.SelectNodes("roads/t");
-            roadSprites = new Dictionary<Tuple<int, int>, Sprite>(20);
-            //sprites[(int)TileType.Road] = new Sprite[16];
+            roadSprites = new Dictionary<Tuple<int, int>, Sprite>(20);            
             c = 0;
             foreach (XmlNode t in tiles)
             {
@@ -164,7 +163,7 @@ namespace Industry.World
 
         public Sprite GetRoadSprite(int roadDir, int slope)
         {
-            Debug.Assert(roadDir >= 0 && roadDir < 16 && (slope == 0 || slope == 3 || slope == 6 || slope == 9 || slope == 12));
+            Debug.Assert(roadDir >= 0 && roadDir < 20 && (slope == 0 || slope == 3 || slope == 6 || slope == 9 || slope == 12));
             return roadSprites[new Tuple<int, int>(slope, roadDir)];
         }
 
