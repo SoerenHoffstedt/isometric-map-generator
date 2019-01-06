@@ -53,7 +53,7 @@ namespace Industry.World.Generation.Modules
             foreach (CityPlacementInfo info in cityPlacementInfo)
             {                
                 Room room = GrowCity(info);
-                if(room.Tiles.Count > 5)
+                if(room != null && room.Tiles.Count > 5)
                     cities.Add(room);
             }
 
@@ -258,13 +258,13 @@ namespace Industry.World.Generation.Modules
             Point origin = start;
 
             //when start tile is not flat, search around it for a flat one
-            if (!GetTile(origin).AllHeightsAreSame())
+            if (!GetTile(origin).AllHeightsAreSame() || GetTile(origin).type == TileType.Water)
             {
                 for (int x = -2; x <= 2 && origin == start; x++)
                 {
                     for (int y = -2; y < 2; y++)
                     {
-                        if(IsInRange(x,y) && tiles[x, y].AllHeightsAreSame())
+                        if(IsInRange(x,y) && tiles[x, y].AllHeightsAreSame() && GetTile(origin).type != TileType.Water)
                         {
                             origin = new Point(x, y);
                             break;
@@ -273,6 +273,9 @@ namespace Industry.World.Generation.Modules
                     }
                 }
             }
+
+            if (tiles[origin.X, origin.Y].type == TileType.Water)
+                return null;
 
             Queue<Intersection> intersections = new Queue<Intersection>(64);
             intersections.Enqueue(new Intersection(origin, true, true, true, true));
