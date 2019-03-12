@@ -19,12 +19,13 @@ You can find a downloadable release on [itch.io](https://meursault.itch.io/isome
 - [x] More trees
 - [x] Animated water
 - [x] Better rivers
+- [x] City districts
+- [x] Diagonal roads
 - [ ] Faster rivers
 - [ ] Bridges
-- [ ] Diagonal roads
-- [ ] City districts
 - [ ] City names
 - [ ] Dynamic lighting
+- [ ] More content
 
 ## Project Structure
 
