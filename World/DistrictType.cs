@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Industry.Simulation
+namespace Industry.World
 {
     public enum DistrictType
     {

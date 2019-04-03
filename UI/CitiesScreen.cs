@@ -1,5 +1,6 @@
 ﻿using BarelyUI;
 using Industry.Simulation;
+using Industry.World;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
