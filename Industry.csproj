@@ -78,6 +78,7 @@
     <Compile Include="World\Generation\Modules\CityCellularAutomataModule.cs" />
     <Compile Include="World\Generation\Modules\CityConnectionModule.cs" />
     <Compile Include="World\Generation\Modules\CityModule.cs" />
+    <Compile Include="World\Generation\Modules\CleanUpModule.cs" />
     <Compile Include="World\Generation\Modules\ForestModule.cs" />
     <Compile Include="World\Generation\Modules\IGeneratorModule.cs" />
     <Compile Include="World\Generation\Modules\RiverModule.cs" />
