@@ -28,7 +28,9 @@
 
 	<string id="currSeed">Seed</string>
 	<string id="keepCurrSeed">Keep seed</string>
-
+	
+	<string id="citySize">City Size</string>
+	<string id="citySizeRandomOffset">City Size Variance</string>
 	
 
 </language>

@@ -44,6 +44,11 @@ namespace Industry.Scenes
         private GeneratingButton mapGenButton;
         private GeneratingCancelButton cancelButton;
 
+
+        private const float citySizeBaseValue = 7.5f;
+        private const float citySizeRange = 5f;        
+        private const float citySizeOffsetMax = 5f;
+
         public MapScene(ContentManager Content, GraphicsDevice GraphicsDevice, Game game)
             : base(Content, GraphicsDevice, game)
         {
@@ -416,7 +421,15 @@ namespace Industry.Scenes
 
             KeyValueText forestText = new KeyValueText("forestSize", $"{100}%");
             forestText.SetValueTextUpdate(() => { return $"{(int)(mapParameter.forestSize * 100)}%"; });
-            Slider forestSlider = new Slider((val) => mapParameter.forestSize = val / 100f, 0, 100, 10, (int)(mapParameter.forestSize * 100));            
+            Slider forestSlider = new Slider((val) => mapParameter.forestSize = val / 100f, 0, 100, 10, (int)(mapParameter.forestSize * 100));
+
+            KeyValueText citySizeText = new KeyValueText("citySize", $"{100}%");
+            citySizeText.SetValueTextUpdate(() => { return $"{mapParameter.citySize}"; });
+            Slider citySizeSlider = new Slider((val) => { mapParameter.citySize = citySizeBaseValue + (val / 100f * citySizeRange - citySizeRange / 2); }, 0, 100, 5, 50);
+
+            KeyValueText citySizeOffsetText = new KeyValueText("citySizeRandomOffset", $"{100}%");
+            citySizeOffsetText.SetValueTextUpdate(() => { return $"{mapParameter.citySizeRandomOffset}"; });
+            Slider citySizeOffsetSlider = new Slider((val) => { mapParameter.citySizeRandomOffset = val / 100f * citySizeOffsetMax; }, 0, 100, 5, 50);
 
             Text mouseOverText = new Text("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa").SetTextUpdateFunction(UpdateMouseOverTileText);
 
@@ -433,6 +446,8 @@ namespace Industry.Scenes
                           xDesc, sizeX, yDesc, sizeY, new Space(6), 
                           minHeightDesc, minHeight, maxHeightDesc, maxHeight, waterDiffDesc, waterDiff , new Space(6), 
                           checkWater, checkRivers, checkCitiesConnect, cityNumText, cityNumSlider, new Space(6), 
+                          citySizeText, citySizeSlider, new Space(6),
+                          citySizeOffsetText, citySizeOffsetSlider, new Space(6),
                           forestText, forestSlider, new Space(6), 
                           mapGenButton, cancelButton, exitButton);
 
