@@ -41,7 +41,7 @@ namespace Industry.World.Generation.Modules
             if (!param.hasRivers)
                 return;
 
-            List<HashSet<Point>> w = GenHelper.FloodFill(tiles, (t) => t.type == TileType.Water);
+            List<HashSet<Point>> w = GeneratorHelper.FloodFill(tiles, (t) => t.type == TileType.Water);
             waters = w.ConvertAll((hs) => new Room(hs));
 
             if (waters.Count < 2)
@@ -52,7 +52,7 @@ namespace Industry.World.Generation.Modules
             Stopwatch sw1 = new Stopwatch();
             sw1.Start();
 
-            List<HashSet<Point>> groundFills = GenHelper.FloodFill(tiles, (t) => t.GetMaxHeight() == param.minHeight);
+            List<HashSet<Point>> groundFills = GeneratorHelper.FloodFill(tiles, (t) => t.GetMaxHeight() == param.minHeight);
 
             foreach(HashSet<Point> points in groundFills)
             {
@@ -83,7 +83,7 @@ namespace Industry.World.Generation.Modules
                         path = pathCache[(r2, r1)];
                     else
                     {
-                        path = GenHelper.AStar(tiles, r1.MiddlePoint, r2.MiddlePoint, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => t.type == TileType.Water ? 1f : 5f, GenHelper.IterateNeighboursFourDir, false);
+                        path = GeneratorHelper.AStar(tiles, r1.MiddlePoint, r2.MiddlePoint, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => t.type == TileType.Water ? 1f : 5f, GeneratorHelper.IterateNeighboursFourDir, false);
                         if (path == null)                        
                             return int.MaxValue;
                         else
@@ -114,7 +114,7 @@ namespace Industry.World.Generation.Modules
                         if (tiles[x, y].AllHeightsAreSame())
                         {
                             int waterNeighbours = 0;
-                            foreach (Point n in GenHelper.IterateNeighboursEightDir(x, y))
+                            foreach (Point n in GeneratorHelper.IterateNeighboursEightDir(x, y))
                             {
                                 if (tiles[n.X, n.Y].type == TileType.Water)
                                 {
@@ -194,7 +194,7 @@ namespace Industry.World.Generation.Modules
                     if (!foundRight)
                     {
                         Point r = GetPoint(p, dirRight, count);
-                        if (!GenHelper.IsInRange(r) || tiles[r.X, r.Y].GetMaxHeight() > height)
+                        if (!GeneratorHelper.IsInRange(r) || tiles[r.X, r.Y].GetMaxHeight() > height)
                         {
                             foundRight = true;
                             distRight = (p.ToVector2() - r.ToVector2()).Length();
@@ -204,7 +204,7 @@ namespace Industry.World.Generation.Modules
                     if (!foundLeft)
                     {
                         Point l = GetPoint(p, dirLeft, count);
-                        if (!GenHelper.IsInRange(l) || tiles[l.X, l.Y].GetMaxHeight() > height)
+                        if (!GeneratorHelper.IsInRange(l) || tiles[l.X, l.Y].GetMaxHeight() > height)
                         {
                             foundLeft = true;
                             distLeft = (p.ToVector2() - l.ToVector2()).Length();
@@ -265,7 +265,7 @@ namespace Industry.World.Generation.Modules
                 Point p2 = points[i + 1];
                 //tiles[p1.X, p1.Y].color = Color.HotPink;
                 //tiles[p2.X, p2.Y].color = Color.HotPink;
-                List<Point> path = GenHelper.AStar(tiles, p1, p2, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => 1f, GenHelper.IterateNeighboursFourDir, false); 
+                List<Point> path = GeneratorHelper.AStar(tiles, p1, p2, (t) => t.GetMaxHeight() == param.minHeight && t.AllHeightsAreSame(), (t) => 1f, GeneratorHelper.IterateNeighboursFourDir, false); 
 
                 if (path != null)
                 {
@@ -307,7 +307,7 @@ namespace Industry.World.Generation.Modules
                             }
 
                             Point point = p + offset;
-                            if (GenHelper.IsInRange(point) && tiles[point.X, point.Y].GetMaxHeight() == param.minHeight)
+                            if (GeneratorHelper.IsInRange(point) && tiles[point.X, point.Y].GetMaxHeight() == param.minHeight)
                             {
                                 tiles[point.X, point.Y].type = TileType.Water;
                             }

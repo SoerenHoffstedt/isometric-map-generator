@@ -41,7 +41,7 @@ namespace Industry.World.Generation.Modules
                     {
                         for (int y = start.Y - 2; y <= start.Y + 2; y++)
                         {
-                            if (GenHelper.IsInRange(x, y) && tiles[x, y].type == TileType.Road)
+                            if (GeneratorHelper.IsInRange(x, y) && tiles[x, y].type == TileType.Road)
                             {
                                 start = new Point(x, y);
                                 break;
@@ -87,7 +87,7 @@ namespace Industry.World.Generation.Modules
                             return 3f;
                     };
                     
-                    List<Point> path = GenHelper.AStar(tiles, start, target, IsWalkable, Cost, GenHelper.IterateNeighboursFourDirRoads);
+                    List<Point> path = GeneratorHelper.AStar(tiles, start, target, IsWalkable, Cost, GeneratorHelper.IterateNeighboursFourDirRoads);
                     
                     if (path != null && !(path.Count == 1 && path[0] == new Point(-1, -1)))
                     {

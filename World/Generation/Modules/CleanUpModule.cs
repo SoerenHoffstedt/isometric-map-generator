@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Industry.World.Generation.GenHelper;
+using static Industry.World.Generation.GeneratorHelper;
 
 
 namespace Industry.World.Generation.Modules
@@ -119,7 +119,7 @@ namespace Industry.World.Generation.Modules
                         int expectedConnectionRoadDir1 = connectedTo[roadDir];
                         int expectedConnectionRoadDir2 = changeTo[expectedConnectionRoadDir1];
                         int count = 0;
-                        foreach (Point p in GenHelper.IterateNeighboursFourDir(x, y))
+                        foreach (Point p in GeneratorHelper.IterateNeighboursFourDir(x, y))
                         {
                             if (tiles[p.X, p.Y].type == TileType.Road &&
                                 (tiles[p.X, p.Y].onTopIndex == expectedConnectionRoadDir1 ||

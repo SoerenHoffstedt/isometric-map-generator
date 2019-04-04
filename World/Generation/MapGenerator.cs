@@ -30,8 +30,8 @@ namespace Industry.World.Generation
             random = new Random(param.randomSeed);
             Debug.WriteLine($"{param.randomSeed}");
             tiles = new Tile[param.size.X, param.size.Y];
-            GenHelper.Size = param.size;
-            GenHelper.tiles = tiles;
+            GeneratorHelper.Size = param.size;
+            GeneratorHelper.tiles = tiles;
             cities.Clear();
             waters.Clear();
 

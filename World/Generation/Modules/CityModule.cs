@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Industry.World.Generation.GenHelper;
+using static Industry.World.Generation.GeneratorHelper;
 
 namespace Industry.World.Generation.Modules
 {
@@ -216,7 +216,7 @@ namespace Industry.World.Generation.Modules
                         distToCenter[t] = dist;
                         tileFillPairing[t] = i;
                     }
-                    foreach(Point n in GenHelper.IterateNeighboursFourDir(p.X, p.Y))
+                    foreach(Point n in GeneratorHelper.IterateNeighboursFourDir(p.X, p.Y))
                     {                        
                         if (cityRoom.Tiles.Contains(n) && !visited.Contains(n))
                         {
@@ -752,7 +752,7 @@ namespace Industry.World.Generation.Modules
         public Intersection(Point pos, double[] dirProbs, Random random)
         {
             this.pos = pos;
-            Debug.Assert(GenHelper.tiles[pos.X, pos.Y].GetSlopeIndex() == 0);
+            Debug.Assert(GeneratorHelper.tiles[pos.X, pos.Y].GetSlopeIndex() == 0);
             directions = 0;
             if (random.NextDouble() < dirProbs[0] && CanMove(Direction.Up))
                 directions += 1;
@@ -773,22 +773,22 @@ namespace Industry.World.Generation.Modules
                 case Direction.Up:
                     if (!IsInRange(pos.X, pos.Y - 1))
                         return false;
-                    slope = GenHelper.tiles[pos.X, pos.Y - 1].GetSlopeIndex();
+                    slope = GeneratorHelper.tiles[pos.X, pos.Y - 1].GetSlopeIndex();
                     return slope == 0 || slope == 12;                    
                 case Direction.Right:
                     if (!IsInRange(pos.X + 1, pos.Y))
                         return false;
-                    slope = GenHelper.tiles[pos.X + 1, pos.Y].GetSlopeIndex();
+                    slope = GeneratorHelper.tiles[pos.X + 1, pos.Y].GetSlopeIndex();
                     return slope == 0 || slope == 9;
                 case Direction.Down:
                     if (!IsInRange(pos.X, pos.Y + 1))
                         return false;
-                    slope = GenHelper.tiles[pos.X, pos.Y + 1].GetSlopeIndex();
+                    slope = GeneratorHelper.tiles[pos.X, pos.Y + 1].GetSlopeIndex();
                     return slope == 0 || slope == 3;
                 case Direction.Left:
                     if (!IsInRange(pos.X - 1, pos.Y))
                         return false;
-                    slope = GenHelper.tiles[pos.X - 1, pos.Y].GetSlopeIndex();
+                    slope = GeneratorHelper.tiles[pos.X - 1, pos.Y].GetSlopeIndex();
                     return slope == 0 || slope == 6;
             }
             return true;

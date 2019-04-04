@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Industry.World.Generation
 {
-    public static class GenHelper
+    public static class GeneratorHelper
     {
         public static Point Size;
 

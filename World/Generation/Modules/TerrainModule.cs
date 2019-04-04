@@ -1,6 +1,6 @@
 ﻿using Barely.ProgGen;
 using Microsoft.Xna.Framework;
-using static Industry.World.Generation.GenHelper;
+using static Industry.World.Generation.GeneratorHelper;
 
 namespace Industry.World.Generation.Modules
 {

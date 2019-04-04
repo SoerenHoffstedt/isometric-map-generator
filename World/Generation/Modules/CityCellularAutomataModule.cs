@@ -3,10 +3,14 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static Industry.World.Generation.GenHelper;
+using static Industry.World.Generation.GeneratorHelper;
 
 namespace Industry.World.Generation.Modules
 {
+
+    /// <summary>
+    /// The old module for creating cities simply based on Cellular Automata.
+    /// </summary>
     public class CityCellularAutomataModule : IGeneratorModule
     {
         private List<Room> cities;
@@ -27,7 +31,7 @@ namespace Industry.World.Generation.Modules
 
         private void CreateCitiesCellularAutomata(GeneratorParameter param, Tile[,] tiles)
         {
-            var rooms = GenHelper.GetCellularAutomataAsRooms(6, 53, true);
+            var rooms = GeneratorHelper.GetCellularAutomataAsRooms(6, 53, true);
             HashSet<Room> toRemove = new HashSet<Room>();
             int count = 7;
 
