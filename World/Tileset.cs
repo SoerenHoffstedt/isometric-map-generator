@@ -20,10 +20,11 @@ namespace Industry.World
         
         private Sprite[][] sprites;
         private Dictionary<Tuple<int,int>, Sprite> roadSprites;
+        private Dictionary<Tuple<int, int>, Sprite> bridgeSprites;
         private Sprite[] pizzaBuildings;
         private Sprite[][] houseBuildings;
         private Dictionary<string, Sprite> hightlightSprites;
-
+    
         public Tileset(XmlNode def, ContentManager Content)
         {
             XmlNodeList tiles = def.SelectNodes("normal/t");
@@ -64,7 +65,7 @@ namespace Industry.World
                 c = 0;
                 DistrictType type = (DistrictType)Enum.Parse(typeof(DistrictType), houseLevels[i].Attributes["type"].Value);
                 tiles = houseLevels[i].SelectNodes("t");
-                houseBuildings[i + 1] = new Sprite[tiles.Count];
+                houseBuildings[(int)type] = new Sprite[tiles.Count];
                 foreach (XmlNode t in tiles)
                 {                
                     int x = int.Parse(t.Attributes["x"].Value);
@@ -101,7 +102,7 @@ namespace Industry.World
             }
 
             tiles = def.SelectNodes("roads/t");
-            roadSprites = new Dictionary<Tuple<int, int>, Sprite>(20);            
+            roadSprites = new Dictionary<Tuple<int, int>, Sprite>(tiles.Count);
             c = 0;
             foreach (XmlNode t in tiles)
             {
@@ -113,6 +114,21 @@ namespace Industry.World
                 int h = int.Parse(t.Attributes["h"].Value);
 
                 roadSprites.Add(new Tuple<int, int>(slope, roadDir), new Sprite(tex, new Rectangle(x, y, w, h), Color.White));                    
+            }
+
+            tiles = def.SelectNodes("bridges/t");
+            bridgeSprites = new Dictionary<Tuple<int, int>, Sprite>(tiles.Count);            
+            c = 0;
+            foreach(XmlNode t in tiles)
+            {
+                int roadDir = int.Parse(t.Attributes["roadDir"].Value);
+                int slope = int.Parse(t.Attributes["slope"].Value);
+                int x = int.Parse(t.Attributes["x"].Value);
+                int y = int.Parse(t.Attributes["y"].Value);
+                int w = int.Parse(t.Attributes["w"].Value);
+                int h = int.Parse(t.Attributes["h"].Value);
+
+                bridgeSprites.Add(new Tuple<int, int>(slope, roadDir), new Sprite(tex, new Rectangle(x, y, w, h), Color.White));
             }
 
             tiles = def.SelectNodes("highlightSprites/s");
@@ -167,17 +183,26 @@ namespace Industry.World
             return roadSprites[new Tuple<int, int>(slope, roadDir)];
         }
 
-        public int GetRandomHouseIndex(DistrictType citizenLevel)
+        public Sprite GetBridgeSprite(int roadDir, int slope)
         {
-            Debug.Assert(citizenLevel != DistrictType.None);
-            Sprite[] array = houseBuildings[(int)citizenLevel];
+            var t = new Tuple<int, int>(slope, roadDir);
+            if (bridgeSprites.ContainsKey(t))
+                return bridgeSprites[t];
+            else
+                return roadSprites[new Tuple<int, int>(0, 0)];
+        }
+
+        public int GetRandomHouseIndex(DistrictType district)
+        {
+            Debug.Assert(district != DistrictType.None);
+            Sprite[] array = houseBuildings[(int)district];
             return random.Next(array.Length);
         }
         
-        public int GetRandomHouseIndex(DistrictType citizenLevel, Random r)
+        public int GetRandomHouseIndex(DistrictType district, Random r)
         {
-            Debug.Assert(citizenLevel != DistrictType.None);
-            Sprite[] array = houseBuildings[(int)citizenLevel];
+            Debug.Assert(district != DistrictType.None);
+            Sprite[] array = houseBuildings[(int)district];
             return r.Next(array.Length);
         }
 

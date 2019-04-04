@@ -93,8 +93,12 @@ namespace Industry.World.Generation.Modules
                     {
                         for (int k = 0; k < path.Count; k++)
                         {
-                            Point p = path[k];                            
-                            tiles[p.X, p.Y].type = TileType.Road;
+                            Point p = path[k];                                                        
+
+                            if(tiles[p.X, p.Y].type == TileType.Water || tiles[p.X, p.Y].type == TileType.Bridge)
+                                tiles[p.X, p.Y].type = TileType.Bridge;
+                            else
+                                tiles[p.X, p.Y].type = TileType.Road;
                         }
                     }
                     else

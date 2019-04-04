@@ -57,6 +57,11 @@ namespace Industry.World.Generation.Modules
         /// </summary>
         private void CalculateCorrectRoadTile(GeneratorParameter param, Tile[,] tiles)
         {
+            bool IsRoadOrBridge(int x, int y)
+            {
+                return tiles[x, y].type == TileType.Road || tiles[x, y].type == TileType.Bridge;
+            }
+
             //classic auto tile by giving the directional neighbour roads power of two values, result is a road dir index between 0 and 15.
             for (int x = 0; x < param.size.X; x++)
             {
@@ -64,21 +69,21 @@ namespace Industry.World.Generation.Modules
                 {
                     Tile t = tiles[x, y];
 
-                    if (t.type != TileType.Bridge && t.type == TileType.Road)
+                    if (t.type != TileType.Bridge && t.type != TileType.Road)
                         continue;
                     
                     int roadDir = 0;
 
-                    if (IsInRange(x - 1, y) && tiles[x - 1, y].type == TileType.Road)
+                    if (IsInRange(x - 1, y) && IsRoadOrBridge(x-1, y))
                         roadDir += 8;
 
-                    if (IsInRange(x + 1, y) && tiles[x + 1, y].type == TileType.Road)
+                    if (IsInRange(x + 1, y) && IsRoadOrBridge(x + 1, y))
                         roadDir += 2;
 
-                    if (IsInRange(x, y - 1) && tiles[x, y - 1].type == TileType.Road)
+                    if (IsInRange(x, y - 1) && IsRoadOrBridge(x, y - 1))
                         roadDir += 1;
 
-                    if (IsInRange(x, y + 1) && tiles[x, y + 1].type == TileType.Road)
+                    if (IsInRange(x, y + 1) && IsRoadOrBridge(x, y + 1))
                         roadDir += 4;
 
                     int slope = t.GetSlopeIndex();

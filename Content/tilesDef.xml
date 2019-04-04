@@ -76,9 +76,16 @@
 		<!--> Diagonals vertical. roadDir 16=3, 19=12 </-->
 		<t slope="0" roadDir="16" 		x="256"	y="552"	w="64" h="64"/>
 		<t slope="0" roadDir="19" 		x="320"	y="552"	w="64" h="64"/>
-	
-
 	</roads>
+
+	<bridges>
+		<t slope="0" roadDir="10"		x="384"	y="480"	w="64" h="56"/>
+		<t slope="0" roadDir="5"		x="448"	y="480"	w="64" h="56"/>		
+		<t slope="0" roadDir="3"		x="512"	y="480"	w="64" h="56"/>		
+		<t slope="0" roadDir="6"		x="576"	y="480"	w="64" h="56"/>	
+		<t slope="0" roadDir="12"		x="640"	y="480"	w="64" h="56"/>	
+		<t slope="0" roadDir="9"		x="704"	y="480"	w="64" h="56"/>	
+	</bridges>
 
 	<houses>
 		<district type="Suburb">

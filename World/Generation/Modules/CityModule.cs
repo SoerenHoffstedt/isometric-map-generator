@@ -442,6 +442,9 @@ namespace Industry.World.Generation.Modules
             Point cityChunkBase = chunkPerCity / new Point(4, 4);
             float offset = 2 * (float)random.NextDouble() * param.citySizeRandomOffset - param.citySizeRandomOffset;
             float sizeFactor = param.citySize + offset;
+            if (sizeFactor <= 0)
+                return 0;
+            
             int grow = (int)((cityChunkBase.X * cityChunkBase.Y) * sizeFactor);
             int size = cityChunkBase.X * cityChunkBase.Y + grow;
             Debug.WriteLine($"Size: {size}. Chunk Base: {cityChunkBase}. City Size: {param.citySize}. Grow size: {grow}. Size factor: {sizeFactor}");

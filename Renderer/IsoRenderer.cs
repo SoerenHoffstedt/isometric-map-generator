@@ -155,12 +155,12 @@ namespace Industry.Renderer
                     if (height == 0)
                         continue;
 
-                    bool isWater = t.type == TileType.Water;
+                    bool isWater = t.type == TileType.Water || t.type == TileType.Bridge;
 
                     Sprite sprite = tileset.GetLandscapeSprite(isWater ? TileType.Water : TileType.Nothing, slope);                  
 
                     Point offset = new Point(0, -height * tileDirtHeight);
-                    if (t.type == TileType.Water)
+                    if (isWater)
                         offset.Y += 4;
 
                     Color col = map[x, y].color;
@@ -237,6 +237,8 @@ namespace Industry.Renderer
                     {
                         if (tile.type == TileType.House)
                             sprite = tileset.GetHouseSprite(tile.citizenLevel, tile.onTopIndex);
+                        else if (tile.type == TileType.Bridge)
+                            sprite = tileset.GetBridgeSprite(tile.onTopIndex, tile.GetSlopeIndex());
                         else
                             sprite = tileset.GetOnTopSprite(tile.type, tile.onTopIndex);
                         Point position = GetPositionByCoords(x, y);
