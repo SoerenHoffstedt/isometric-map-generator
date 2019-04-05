@@ -9,9 +9,16 @@ namespace Industry.World.Generation.Modules
 {
     public class ForestModule : IGeneratorModule
     {
-        private const int BLOCKING_PERC_MIN = 48;
-        private const int BLOCKING_PERC_MAX = 55;
-        private const int SMOOTH_ITERATIONS = 3;
+        private const int BLOCKING_PERC_MIN = 53;
+        private const int BLOCKING_PERC_MAX = 58;
+        private const int SMOOTH_ITERATIONS = 5;
+
+        private Random random;
+
+        public ForestModule(Random random)
+        {
+            this.random = random;
+        }
 
         public void Apply(GeneratorParameter param, Tile[,] tiles)
         {
@@ -20,7 +27,7 @@ namespace Industry.World.Generation.Modules
             
             float paramValue = 1 - param.forestSize;
             int perc = (int)(BLOCKING_PERC_MIN + (BLOCKING_PERC_MAX - BLOCKING_PERC_MIN) * paramValue);
-            bool[,] automata = CellularAutomata.Generate(param.size, SMOOTH_ITERATIONS, perc, true, param.randomSeed);
+            bool[,] automata = CellularAutomata.Generate(param.size, SMOOTH_ITERATIONS, perc, true, random.Next());
 
             for (int x = 0; x < param.size.X; x++)
             {
@@ -30,7 +37,7 @@ namespace Industry.World.Generation.Modules
                     if (!automata[x, y] && t.type == TileType.Nothing)
                     {
                         t.type = TileType.Forest;
-                        t.onTopIndex = param.tileset.GetRandomIndex(TileType.Forest);
+                        t.onTopIndex = param.tileset.GetRandomIndex(TileType.Forest, random);
                     }
                 }
             }
