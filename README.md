@@ -21,10 +21,10 @@ You can find a downloadable release on [itch.io](https://meursault.itch.io/isome
 - [x] Better rivers
 - [x] City districts
 - [x] Diagonal roads
+- [x] Bridges
+- [x] Resource Spawning
 - [ ] Faster rivers
-- [ ] Bridges
 - [ ] City names
-- [ ] Dynamic lighting
 - [ ] More content
 
 ## Project Structure
