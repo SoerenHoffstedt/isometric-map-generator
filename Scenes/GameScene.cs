@@ -18,6 +18,7 @@ using Industry.Simulation;
 using Glide;
 using Industry.Renderer;
 using BarelyUI.Layouts;
+using Industry.InputMode;
 
 namespace Industry.Scenes
 {
@@ -104,114 +105,9 @@ namespace Industry.Scenes
             simulator = new Simulator(0, map, CreateAgent, RemoveAgentFromScene);           
 
             CreateUI();
+
+            CameraInput.Initialize();
         }      
-
-        private void CreateUI()
-        {
-
-            Point windowSizes = new Point(600, 400);
-                        
-            Style.PushStyle("moneyPanel");
-            Panel moneyPanel = new VerticalLayout().SetAnchor(AnchorX.Right, AnchorY.Top);
-            moneyPanel.SetFixedWidth(300).SetLayoutSize(LayoutSize.FixedSize, LayoutSize.WrapContent);
-            moneyPanel.sprite = Style.sprites["panel"];            
-            moneyPanel.Padding = new Point(16, 8);
-            moneyPanel.AddChild(new Text($"${simulator.playerCompany.displayMoney}").SetTextUpdateFunction(() => { return $"${simulator.playerCompany.displayMoney}"; }).SetAllignments(Allignment.Right, Allignment.Middle).SetFont(Style.fonts["textSmall"]).SetGetTranslation(false));       
-
-            uiCanvas.AddChild(moneyPanel);
-
-            Style.PopStyle();
-            Style.PushStyle("mainButtonPanel");
-
-            Panel mainButtonPanel = new VerticalLayout().SetAnchor(AnchorX.Left, AnchorY.Bottom);
-            mainButtonPanel.SetMargin(8).SetLayoutSize(LayoutSize.WrapContent, LayoutSize.WrapContent);
-            mainButtonPanel.sprite = Style.sprites["panel"];
-            mainButtonPanel.Padding = new Point(8, 8);
-            
-            foreach(GameState gs in Enum.GetValues(typeof(GameState)))
-            {
-                GameState state = gs;
-                Button b = new Button(state.ToString());                
-                b.OnMouseClick = () => ChangeGameState(state);
-                mainButtonPanel.AddChild(b);
-            }            
-
-            uiCanvas.AddChild(mainButtonPanel);
-
-            Style.PopStyle();
-            Style.PushStyle("storeScreen");
-
-            playerStoreUIScreen = new StoreScreen(CreateAgent, FireAgent);
-            Style.PushStyle("panelSpriteOn");
-            playerStoreWindow = new Window(playerStoreUIScreen, "Store", uiCanvas).SetIsDraggable(false);
-            playerStoreWindow.SetAnchor(AnchorX.Middle, AnchorY.Middle);
-            playerStoreWindow.Close();
-            Style.PopStyle("panelSpriteOn");
-            uiCanvas.AddChild(playerStoreWindow);
-
-
-            CitiesScreen citiesScreen = new CitiesScreen(windowSizes, simulator.cities);
-            Style.PushStyle("panelSpriteOn");
-            citiesWindow = new Window(citiesScreen, "Cities", uiCanvas).SetIsDraggable(false);
-            citiesWindow.SetAnchor(AnchorX.Middle, AnchorY.Middle);
-            citiesWindow.Close();
-            Style.PopStyle("panelSpriteOn");
-            uiCanvas.AddChild(citiesWindow);
-
-            Style.PopStyle();
-            
-            uiCanvas.AddChild(CreateTimeControlls());
-
-            uiCanvas.FinishCreation();
-            
-        }
-        
-        Panel CreateTimeControlls()
-        {
-            Style.PushStyle("timeBar");
-            Style.PushStyle("panelSpriteOn");
-
-            Layout.PushLayout("timeBar");
-            Layout.PushLayout("timeBarPanel");
-            VerticalLayout vertLayout = new VerticalLayout();                     
-            Layout.PopLayout("timeBarPanel");
-
-            Style.PopStyle("panelSpriteOn");
-
-            HorizontalLayout time   = new HorizontalLayout();            
-            Text week               = new Text($"Week: 111", false).SetTextUpdateFunction(() => { return $"{Texts.Get("week")}: {simulator.week}"; });
-            Text day                = new Text($"Week: 111", false).SetTextUpdateFunction(() => { return $"{Texts.Get("day")}: {simulator.day}"; });
-            Text progress           = new Text($"Week: 111", false).SetTextUpdateFunction(() => { return $"{simulator.GetDayProgress().ToString("p1")}"; });
-            time.AddChild(week, day, progress);
-            vertLayout.AddChild(time);
-
-            Style.PushStyle("speedControls");
-
-            HorizontalLayout speedControlls = new HorizontalLayout();
-           
-
-            simSpeedButtons = new Button[] {  new Button(Style.sprites["speedPaused"]),
-                                              new Button(Style.sprites["speedNormalSel"]),
-                                              new Button(Style.sprites["speedFast"]),
-                                              new Button(Style.sprites["speedFaster"]) };
-
-            for (int i = 0; i < 4; i++)
-            {
-                SimSpeed speed = (SimSpeed)i;
-                simSpeedButtons[i].OnMouseClick = () => ChangeSimSpeed(speed);
-                speedControlls.AddChild(simSpeedButtons[i]);
-            }
-
-            Layout.PopLayout("timeBar");
-
-            Style.PopStyle("speedControls");
-            Style.PopStyle("timeBar");
-
-            vertLayout.AddChild(speedControlls);
-
-            return vertLayout;
-        }
-        
 
         void ChangeGameState(GameState newState)
         {
@@ -245,6 +141,9 @@ namespace Industry.Scenes
         {            
             float dt = (float)deltaTime;
 
+            HandleInput(deltaTime);
+            CameraInput.HandleCameraInput(camera, deltaTime, cameraTakesInput);
+
             map.Update(dt);
             simulator.Update(deltaTime);
             CreatePaths();
@@ -254,9 +153,7 @@ namespace Industry.Scenes
                 startOrders = false;
             }
 
-            uiCanvas.Update(dt);
-            HandleInput(deltaTime);            
-            CameraInput(deltaTime);
+            uiCanvas.Update(dt);            
             tweener.Update(dt);
             Animator.Update(deltaTime);
         }
@@ -316,73 +213,7 @@ namespace Industry.Scenes
             if (Input.GetKeyDown(Keys.F1))
                 Canvas.DRAW_DEBUG = !Canvas.DRAW_DEBUG;
 
-        }
-
-        protected override void CameraInput(double deltaTime)
-        {
-            float dt = (float)deltaTime;
-
-            Vector2 camMove = new Vector2();
-
-            if (cameraTakesInput)
-            {
-                int zoomChange = 0;
-
-                int wheel = Input.GetMouseWheelDelta();
-                if (wheel != 0)
-                {
-                    if (wheel > 0)
-                        zoomChange++;
-                    else
-                        zoomChange--;
-                }
-
-                if (Input.GetKeyDown(Keys.Q))
-                    zoomChange++;
-                if (Input.GetKeyDown(Keys.E))
-                    zoomChange--;
-
-                if (zoomChange != 0)
-                {
-                    camera.zoom += zoomChange;
-                    if (camera.zoom < 1f)
-                    {
-                        camera.zoom = 0.5f;
-                    }
-                    else if (camera.zoom > 4f)
-                    {
-                        camera.zoom = 4f;
-                    }
-                    else if (camera.zoom != 0.5f && (camera.zoom % 1.0f) != 0)
-                    {
-                        camera.zoom = 1f;
-                    }
-                }
-
-                float camSpeed = 1000f;
-
-                if (Input.GetKeyPressed(Keys.D))
-                    camMove.X += camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.A))
-                    camMove.X -= camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.S))
-                    camMove.Y += camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.W))
-                    camMove.Y -= camSpeed * dt;
-
-                if (Input.GetMiddleMouseDown())
-                    isDragging = true;
-
-                if (Input.GetMiddleMouseUp())
-                    isDragging = false;
-
-                //Drag axis invertable via Settings, -> *(-1) 
-                if (isDragging)
-                    camMove += Input.GetMousePositionDelta().ToVector2() * 2;
-            }
-
-            camera.Update(deltaTime, camMove);
-        }
+        }        
 
         #region Gameplay
 
@@ -465,5 +296,116 @@ namespace Industry.Scenes
 
             renderer.Draw(spriteBatch, camera, map, allAgents, simulator.cities, prevData, highlights, mouseOverTile, uiCanvas, false);            
         }
+
+        #region UI
+
+        private void CreateUI()
+        {
+
+            Point windowSizes = new Point(600, 400);
+
+            Style.PushStyle("moneyPanel");
+            Panel moneyPanel = new VerticalLayout().SetAnchor(AnchorX.Right, AnchorY.Top);
+            moneyPanel.SetFixedWidth(300).SetLayoutSize(LayoutSize.FixedSize, LayoutSize.WrapContent);
+            moneyPanel.sprite = Style.sprites["panel"];
+            moneyPanel.Padding = new Point(16, 8);
+            moneyPanel.AddChild(new Text($"${simulator.playerCompany.displayMoney}").SetTextUpdateFunction(() => { return $"${simulator.playerCompany.displayMoney}"; }).SetAllignments(Allignment.Right, Allignment.Middle).SetFont(Style.fonts["textSmall"]).SetGetTranslation(false));
+
+            uiCanvas.AddChild(moneyPanel);
+
+            Style.PopStyle();
+            Style.PushStyle("mainButtonPanel");
+
+            Panel mainButtonPanel = new VerticalLayout().SetAnchor(AnchorX.Left, AnchorY.Bottom);
+            mainButtonPanel.SetMargin(8).SetLayoutSize(LayoutSize.WrapContent, LayoutSize.WrapContent);
+            mainButtonPanel.sprite = Style.sprites["panel"];
+            mainButtonPanel.Padding = new Point(8, 8);
+
+            foreach (GameState gs in Enum.GetValues(typeof(GameState)))
+            {
+                GameState state = gs;
+                Button b = new Button(state.ToString());
+                b.OnMouseClick = () => ChangeGameState(state);
+                mainButtonPanel.AddChild(b);
+            }
+
+            uiCanvas.AddChild(mainButtonPanel);
+
+            Style.PopStyle();
+            Style.PushStyle("storeScreen");
+
+            playerStoreUIScreen = new StoreScreen(CreateAgent, FireAgent);
+            Style.PushStyle("panelSpriteOn");
+            playerStoreWindow = new Window(playerStoreUIScreen, "Store", uiCanvas).SetIsDraggable(false);
+            playerStoreWindow.SetAnchor(AnchorX.Middle, AnchorY.Middle);
+            playerStoreWindow.Close();
+            Style.PopStyle("panelSpriteOn");
+            uiCanvas.AddChild(playerStoreWindow);
+
+
+            CitiesScreen citiesScreen = new CitiesScreen(windowSizes, simulator.cities);
+            Style.PushStyle("panelSpriteOn");
+            citiesWindow = new Window(citiesScreen, "Cities", uiCanvas).SetIsDraggable(false);
+            citiesWindow.SetAnchor(AnchorX.Middle, AnchorY.Middle);
+            citiesWindow.Close();
+            Style.PopStyle("panelSpriteOn");
+            uiCanvas.AddChild(citiesWindow);
+
+            Style.PopStyle();
+
+            uiCanvas.AddChild(CreateTimeControlls());
+
+            uiCanvas.FinishCreation();
+
+        }
+
+        Panel CreateTimeControlls()
+        {
+            Style.PushStyle("timeBar");
+            Style.PushStyle("panelSpriteOn");
+
+            Layout.PushLayout("timeBar");
+            Layout.PushLayout("timeBarPanel");
+            VerticalLayout vertLayout = new VerticalLayout();
+            Layout.PopLayout("timeBarPanel");
+
+            Style.PopStyle("panelSpriteOn");
+
+            HorizontalLayout time = new HorizontalLayout();
+            Text week = new Text($"Week: 111", false).SetTextUpdateFunction(() => { return $"{Texts.Get("week")}: {simulator.week}"; });
+            Text day = new Text($"Week: 111", false).SetTextUpdateFunction(() => { return $"{Texts.Get("day")}: {simulator.day}"; });
+            Text progress = new Text($"Week: 111", false).SetTextUpdateFunction(() => { return $"{simulator.GetDayProgress().ToString("p1")}"; });
+            time.AddChild(week, day, progress);
+            vertLayout.AddChild(time);
+
+            Style.PushStyle("speedControls");
+
+            HorizontalLayout speedControlls = new HorizontalLayout();
+
+
+            simSpeedButtons = new Button[] {  new Button(Style.sprites["speedPaused"]),
+                                              new Button(Style.sprites["speedNormalSel"]),
+                                              new Button(Style.sprites["speedFast"]),
+                                              new Button(Style.sprites["speedFaster"]) };
+
+            for (int i = 0; i < 4; i++)
+            {
+                SimSpeed speed = (SimSpeed)i;
+                simSpeedButtons[i].OnMouseClick = () => ChangeSimSpeed(speed);
+                speedControlls.AddChild(simSpeedButtons[i]);
+            }
+
+            Layout.PopLayout("timeBar");
+
+            Style.PopStyle("speedControls");
+            Style.PopStyle("timeBar");
+
+            vertLayout.AddChild(speedControlls);
+
+            return vertLayout;
+        }
+
+
+        #endregion
     }
 }

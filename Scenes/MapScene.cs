@@ -18,6 +18,7 @@ using BarelyUI.Layouts;
 using System.Diagnostics;
 using Industry.UI;
 using System.Threading;
+using Industry.InputMode;
 
 namespace Industry.Scenes
 {   
@@ -93,7 +94,8 @@ namespace Industry.Scenes
 
             CreateUI();
 
-            SetCameraBounds();            
+            SetCameraBounds();
+            CameraInput.Initialize();
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -109,12 +111,14 @@ namespace Industry.Scenes
         {
             UpdateMapGeneration(deltaTime);
             HandleInput(deltaTime);
-            CameraInput(deltaTime);
+            CameraInput.HandleCameraInput(camera, deltaTime, cameraTakesInput);
             map.Update((float)deltaTime);
             uiCanvas.Update((float)deltaTime);
         }
 
         bool cameraTakesInput = true;
+
+        Tile mouseDownTile;
 
         private void HandleInput(double deltaTime)
         {
@@ -143,106 +147,55 @@ namespace Industry.Scenes
                 Canvas.DRAW_DEBUG = !Canvas.DRAW_DEBUG;
             }
 
-        }
-
-        const int MIN_ZOOM = 0;
-        const int MAX_ZOOM = 5;
-        int zoom = 2;
-
-        protected override void CameraInput(double deltaTime)
-        {
-            float dt = (float)deltaTime;
-
-            Vector2 camMove = new Vector2();
-
-            if (cameraTakesInput)
-            {
-                int zoomChange = 0;
-
-                int wheel = Input.GetMouseWheelDelta();
-                if (wheel != 0)
-                {
-                    if (wheel > 0)
-                        zoomChange++;
-                    else
-                        zoomChange--;
-                }
-
-                if (Input.GetKeyDown(Keys.Q))
-                    zoomChange++;
-                if (Input.GetKeyDown(Keys.E))
-                    zoomChange--;
-                
-                zoom += zoomChange;
-                if (zoom < MIN_ZOOM)
-                    zoom = MIN_ZOOM;
-                if (zoom > MAX_ZOOM)
-                    zoom = MAX_ZOOM;
-                camera.zoom = GetZoomFloat();
-
-                float camSpeed = GetCamSpeed();
-
-                if (Input.GetKeyPressed(Keys.D) || Input.GetKeyPressed(Keys.Right))
-                    camMove.X += camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.A) || Input.GetKeyPressed(Keys.Left))
-                    camMove.X -= camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.S) || Input.GetKeyPressed(Keys.Down))
-                    camMove.Y += camSpeed * dt;
-                if (Input.GetKeyPressed(Keys.W) || Input.GetKeyPressed(Keys.Up))
-                    camMove.Y -= camSpeed * dt;
-
-                if (!isDragging)
-                {
-                    if (Input.GetRightMouseDown())
-                        isDragging = true;
-                    else if (Input.GetMiddleMouseDown())
-                        isDragging = true;
-                }
-
-                if (isDragging)
-                {
-                    if (Input.GetRightMouseUp())
-                        isDragging = false;
-                    else if (Input.GetMiddleMouseUp())
-                        isDragging = false;
-                }
-                
-                if (isDragging)
-                    camMove -= Input.GetMousePositionDelta().ToVector2() / camera.zoom;
+            if (Input.GetLeftMouseDown())
+            {                
+                mouseDownTile = map.GetMouseOverTile();
             }
 
-            camera.Update(deltaTime, camMove);
-        }
-
-        float GetCamSpeed()
-        {
-            switch (zoom)
+            if (Input.GetLeftMouseUp())
             {
-                case 0:
-                    return 2000f;
-                case 1:
-                    return 1300f;
-                default:
-                case 2:
-                    return 900f;
-                case 3:
-                    return 700f;
-                case 4:
-                    return 450f;
-                case 5:
-                    return 300f;                
-            }            
-        }
+                Tile to = map.GetMouseOverTile();
+                if(mouseDownTile != null && to != null)
+                {
+                    Point from = mouseDownTile.coord;
+                    Point target = to.coord;
+                    int dx = System.Math.Abs(to.coord.X - mouseDownTile.coord.X);
+                    int dy = System.Math.Abs(to.coord.Y - mouseDownTile.coord.Y);
+                    if(dx >= dy)                    
+                        target.Y = mouseDownTile.coord.Y;
+                    else
+                        target.X = mouseDownTile.coord.X;
 
-        float GetZoomFloat()
-        {
-            if (zoom == 0)
-                return 0.25f;
-            else if (zoom == 1)
-                return 0.5f;
-            else
-                return zoom - 1;
+                    if(from.X > target.X)
+                    {
+                        int tmp = from.X;
+                        from.X = target.X;
+                        target.X = tmp;
+                    }
+                    if (from.Y > target.Y)
+                    {
+                        int tmp = from.Y;
+                        from.Y = target.Y;
+                        target.Y = tmp;
+                    }
+
+                    for (int x = from.X; x <= target.X; x++)
+                    {
+                        for (int y = from.Y; y <= target.Y; y++)
+                        {
+                            if(map[x, y].IsRoadPlaceable())
+                            {
+                                map[x, y].type = TileType.Road;
+                            }
+                        }
+                    }
+
+
+                }
+            }
+
         }
+                   
 
         void SetCameraBounds()
         {
