@@ -153,7 +153,7 @@ namespace Industry.Scenes
                 mouseDownTile = map.GetMouseOverTile();
             }
 
-            if (Input.GetLeftMouseUp())
+            /*if (Input.GetLeftMouseUp())
             {
                 Tile to = map.GetMouseOverTile();
                 if(mouseDownTile != null && to != null)
@@ -193,7 +193,7 @@ namespace Industry.Scenes
 
 
                 }
-            }
+            }*/
 
         }
                    
