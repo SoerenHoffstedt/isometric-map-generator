@@ -70,16 +70,17 @@ namespace Industry.Scenes
                 minHeight = 8,
                 maxHeight = 16,
                 waterMinDiff = 4,
-                forestSize = 0.0f,
-                citiesNumber = 1.0f,
+                forestSize = 0.3f,
+                resourceSize = 0.5f,
+                citiesNumber = 0.4f,
                 citySize = 7.5f,
-                citySizeRandomOffset = 7.0f,
+                citySizeRandomOffset = 2.5f,
                 hasCities = true,
                 hasWater = true,
-                hasCityConnections = false,
+                hasCityConnections = true,
                 hasRivers = false,
                 tileset = tileset,
-                randomSeed = 615228352//1571703035 //123456789 //189370585 //1621216522 //123456789 //1571703035 
+                randomSeed = 869719833//615228352//1571703035 //123456789 //189370585 //1621216522 //123456789 //1571703035 
             };
 
             cities = new List<City>(64);
@@ -348,7 +349,7 @@ namespace Industry.Scenes
             yDesc.SetValueTextUpdate(() => { return $"{mapParameter.size.Y}"; });            
             Slider sizeY = new Slider((yVal) => SetMapSize(yVal, false), 0, 4, 1, GetMapSizeSliderVal(mapParameter.size.Y));
 
-            Text terrainLabel = new Text("terrain");
+            /*Text terrainLabel = new Text("terrain");
 
             KeyValueText minHeightDesc = new KeyValueText("minHeight", "");
             minHeightDesc.SetValueTextUpdate(() => $"{mapParameter.minHeight}");
@@ -360,7 +361,7 @@ namespace Industry.Scenes
 
             KeyValueText waterDiffDesc = new KeyValueText("waterDiff", "");
             waterDiffDesc.SetValueTextUpdate(() => $"{mapParameter.waterMinDiff}");
-            Slider waterDiff = new Slider((val) => mapParameter.waterMinDiff = val, 0, 6, 1, mapParameter.waterMinDiff);
+            Slider waterDiff = new Slider((val) => mapParameter.waterMinDiff = val, 0, 6, 1, mapParameter.waterMinDiff);*/
 
             Checkbox checkWater = new Checkbox("hasWater", (val) => { mapParameter.hasWater = val; }, startValue: mapParameter.hasWater);
 
@@ -375,6 +376,10 @@ namespace Industry.Scenes
             KeyValueText forestText = new KeyValueText("forestSize", $"{100}%");
             forestText.SetValueTextUpdate(() => { return $"{(int)(mapParameter.forestSize * 100)}%"; });
             Slider forestSlider = new Slider((val) => mapParameter.forestSize = val / 100f, 0, 100, 10, (int)(mapParameter.forestSize * 100));
+
+            KeyValueText resourceText = new KeyValueText("resourceSize", $"{100}%");
+            resourceText.SetValueTextUpdate(() => { return $"{(int)(mapParameter.resourceSize * 100)}%"; });
+            Slider resourceSlider = new Slider((val) => mapParameter.resourceSize = val / 100f, 0, 100, 10, (int)(mapParameter.resourceSize * 100));
 
             KeyValueText citySizeText = new KeyValueText("citySize", $"{100}%");
             citySizeText.SetValueTextUpdate(() => { return $"{mapParameter.citySize}"; });
@@ -397,11 +402,11 @@ namespace Industry.Scenes
 
             main.AddChild(mouseOverText, new Space(6), currSeedLabel, keepOldSeedCheck, new Space(6),
                           xDesc, sizeX, yDesc, sizeY, new Space(6), 
-                          minHeightDesc, minHeight, maxHeightDesc, maxHeight, waterDiffDesc, waterDiff , new Space(6), 
+                          //minHeightDesc, minHeight, maxHeightDesc, maxHeight, waterDiffDesc, waterDiff , new Space(6), 
                           checkWater, checkRivers, checkCitiesConnect, cityNumText, cityNumSlider, new Space(6), 
                           citySizeText, citySizeSlider, new Space(6),
                           citySizeOffsetText, citySizeOffsetSlider, new Space(6),
-                          forestText, forestSlider, new Space(6), 
+                          forestText, forestSlider, resourceText, resourceSlider, new Space(6), 
                           mapGenButton, cancelButton, exitButton);
 
             uiCanvas.AddChild(main);

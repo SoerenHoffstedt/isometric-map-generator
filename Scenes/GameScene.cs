@@ -82,20 +82,24 @@ namespace Industry.Scenes
             Sprite bikeSouth    = new Sprite(Content.Load<Texture2D>("tiles"), new Rectangle(128 + 64, 384, 64, 48));
             bikeSprites         = new Sprite[] { bikeNorth, bikeEast, bikeSouth, bikeWest };
 
-            GeneratorParameter mapParameter = new GeneratorParameter()
+            var mapParameter = new GeneratorParameter()
             {
-                size = new Point(64, 128),
+                size = new Point(128, 128),
                 baseHeight = 1,
-                minHeight = 5,
-                maxHeight = 12,
-                forestSize = 0.5f,
-                citiesNumber = 1f,
+                minHeight = 8,
+                maxHeight = 16,
+                waterMinDiff = 4,
+                forestSize = 0.3f,
+                resourceSize = 0.5f,
+                citiesNumber = 0.4f,
                 citySize = 7.5f,
-                citySizeRandomOffset = 3.5f,
+                citySizeRandomOffset = 2.5f,
                 hasCities = true,
-                hasWater = false,                
+                hasWater = true,
                 hasCityConnections = true,
-                tileset = tileset
+                hasRivers = false,
+                tileset = tileset,
+                randomSeed = 869719833//615228352//1571703035 //123456789 //189370585 //1621216522 //123456789 //1571703035 
             };
 
             map = new Map(mapParameter, camera, Content, GraphicsDevice, Config.Resolution);

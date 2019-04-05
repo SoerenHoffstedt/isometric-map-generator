@@ -30,7 +30,7 @@ namespace Industry.World
             XmlNodeList tiles = def.SelectNodes("normal/t");
             Texture2D tex = Content.Load<Texture2D>(def.Attributes["atlas"].Value);
 
-            sprites = new Sprite[7][];
+            sprites = new Sprite[(int)TileType.Count][];
 
             name = def.Attributes["name"].Value;
             sprites[(int)TileType.Nothing] = new Sprite[16];            
@@ -99,6 +99,54 @@ namespace Industry.World
                 int w = int.Parse(t.Attributes["w"].Value);
                 int h = int.Parse(t.Attributes["h"].Value);
                 sprites[(int)TileType.Forest][c++] = new Sprite(tex, new Rectangle(x, y, w, h), Color.White);
+            }
+
+            tiles = def.SelectNodes("stone/t");
+            sprites[(int)TileType.Stone] = new Sprite[tiles.Count];
+            c = 0;
+            foreach (XmlNode t in tiles)
+            {
+                int x = int.Parse(t.Attributes["x"].Value);
+                int y = int.Parse(t.Attributes["y"].Value);
+                int w = int.Parse(t.Attributes["w"].Value);
+                int h = int.Parse(t.Attributes["h"].Value);
+                sprites[(int)TileType.Stone][c++] = new Sprite(tex, new Rectangle(x, y, w, h), Color.White);
+            }
+
+            tiles = def.SelectNodes("coal/t");
+            sprites[(int)TileType.Coal] = new Sprite[tiles.Count];
+            c = 0;
+            foreach (XmlNode t in tiles)
+            {
+                int x = int.Parse(t.Attributes["x"].Value);
+                int y = int.Parse(t.Attributes["y"].Value);
+                int w = int.Parse(t.Attributes["w"].Value);
+                int h = int.Parse(t.Attributes["h"].Value);
+                sprites[(int)TileType.Coal][c++] = new Sprite(tex, new Rectangle(x, y, w, h), Color.White);
+            }
+
+            tiles = def.SelectNodes("ore/t");
+            sprites[(int)TileType.Ore] = new Sprite[tiles.Count];
+            c = 0;
+            foreach (XmlNode t in tiles)
+            {
+                int x = int.Parse(t.Attributes["x"].Value);
+                int y = int.Parse(t.Attributes["y"].Value);
+                int w = int.Parse(t.Attributes["w"].Value);
+                int h = int.Parse(t.Attributes["h"].Value);
+                sprites[(int)TileType.Ore][c++] = new Sprite(tex, new Rectangle(x, y, w, h), Color.White);
+            }
+
+            tiles = def.SelectNodes("oil/t");
+            sprites[(int)TileType.Oil] = new Sprite[tiles.Count];
+            c = 0;
+            foreach (XmlNode t in tiles)
+            {
+                int x = int.Parse(t.Attributes["x"].Value);
+                int y = int.Parse(t.Attributes["y"].Value);
+                int w = int.Parse(t.Attributes["w"].Value);
+                int h = int.Parse(t.Attributes["h"].Value);
+                sprites[(int)TileType.Oil][c++] = new Sprite(tex, new Rectangle(x, y, w, h), Color.White);
             }
 
             tiles = def.SelectNodes("roads/t");

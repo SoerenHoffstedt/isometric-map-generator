@@ -122,15 +122,20 @@ namespace Industry.World.Generation
             }
 
             return toReturn;
-        }        
+        }
+
+        public static List<Room> GetCellularAutomataAsRooms(bool [,] automata)
+        {
+            List<HashSet<Point>> bla = FloodFill(automata, (b) => { return !b; });
+
+            return bla.ConvertAll((set) => { return new Room(set); });
+        }
 
         public static List<Room> GetCellularAutomataAsRooms(int smoothIterations, int blockingTilePercentage, bool openCave)
         {
             bool[,] automata = CellularAutomata.Generate(Size, smoothIterations, blockingTilePercentage, openCave);
 
-            List<HashSet<Point>> bla = FloodFill(automata, (b) => { return !b; });
-
-            return bla.ConvertAll((set) => { return new Room(set); });
+            return GetCellularAutomataAsRooms(automata);
         }
 
         public static List<Point> AStar<T>(T[,] map, Point source, Point target, Func<T, bool> IsWalkable, Func<T, float> WalkCost, Func<int,int,IEnumerable<Point>> IterateNeighours, bool reversePath = true) where T : class
@@ -212,6 +217,26 @@ namespace Industry.World.Generation
 
             path.Reverse();
             return path;
+        }
+
+
+        /// <summary>
+        /// Extension method to shuffle any list with Fisher-Yates-Shuffle.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="rng"></param>
+        public static void Shuffle<T>(this IList<T> list, Random rng)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T tmp = list[k];
+                list[k] = list[n];
+                list[n] = tmp;
+            }
         }
 
     }

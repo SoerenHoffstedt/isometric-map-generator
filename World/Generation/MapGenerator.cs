@@ -44,7 +44,9 @@ namespace Industry.World.Generation
             if (param.hasCityConnections)
                 modules.Add(new CityConnectionModule(cities, random));
             if(param.forestSize > 0.0f)
-                modules.Add(new ForestModule());
+                modules.Add(new ForestModule(random));
+            if (param.resourceSize > 0.0f)
+                modules.Add(new ResourceModule(random));
 
             modules.Add(new CleanUpModule(cities, waters));
         }

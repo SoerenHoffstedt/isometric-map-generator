@@ -29,7 +29,7 @@ namespace Industry.World
         {
             this.coord = coord;
             height = new int[] { n, e, s, w };            
-            type = TileType.Nothing;            
+            type = TileType.Nothing;
         }
 
         public void SetCitizenLevel(DistrictType level)
@@ -136,10 +136,15 @@ namespace Industry.World
     {
         Nothing,
         Water,
-        House,
+        House,        
         Forest,
+        Stone,
+        Ore,
+        Coal,
+        Oil,
         Road,
         Bridge,
-        Pizza
+        Pizza,
+        Count
     }
 }

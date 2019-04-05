@@ -81,12 +81,14 @@
     <Compile Include="World\Generation\Modules\CleanUpModule.cs" />
     <Compile Include="World\Generation\Modules\ForestModule.cs" />
     <Compile Include="World\Generation\Modules\IGeneratorModule.cs" />
+    <Compile Include="World\Generation\Modules\ResourceModule.cs" />
     <Compile Include="World\Generation\Modules\RiverModule.cs" />
     <Compile Include="World\Generation\Modules\TerrainModule.cs" />
     <Compile Include="World\Generation\Room.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\Generation\MapGenerator.cs" />
     <Compile Include="World\Pathfinder.cs" />
+    <Compile Include="World\Resources.cs" />
     <Compile Include="World\Tile.cs" />
     <Compile Include="World\Tileset.cs" />
   </ItemGroup>

@@ -28,6 +28,11 @@ namespace Industry.World.Generation
         public float forestSize;
 
         /// <summary>
+        /// Float between [0.0,1.0] describing the amount of resources placed on the map.
+        /// </summary>
+        public float resourceSize;
+
+        /// <summary>
         /// float between 0.0 and 1.0 describing the number of cities on the map
         /// </summary>
         public float citiesNumber;

@@ -206,7 +206,7 @@ namespace Industry.Renderer
 
             bool IsDrawnOnTop(TileType type)
             {
-                return type == TileType.House || type == TileType.Forest || type == TileType.Pizza || type == TileType.Bridge;
+                return type != TileType.Nothing && type != TileType.Water && type != TileType.Road && type != TileType.Count;
             }
 
             for (int x = from.X; x <= to.X; x++)
@@ -242,7 +242,7 @@ namespace Industry.Renderer
                         else
                             sprite = tileset.GetOnTopSprite(tile.type, tile.onTopIndex);
                         Point position = GetPositionByCoords(x, y);
-                        int height = tile.GetMaxHeight();
+                        int height = tile.GetMinHeight();
                         Point offset = new Point(0, -height * tileDirtHeight);
                         int spriteHeight = sprite.spriteRect.Height;
                         if (spriteHeight > tileSize.Y)
